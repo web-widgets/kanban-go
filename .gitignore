@@ -2,3 +2,4 @@
 .vscode
 kanban-go
 db.sqlite
+application*

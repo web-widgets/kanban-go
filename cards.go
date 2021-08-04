@@ -1,6 +1,6 @@
 package main
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type CardsManager struct{}
 
@@ -25,13 +25,17 @@ func (m *CardsManager) Update(id int, info CardUpdate) error {
 	}
 
 	c.Name = info.Name
-	c.StageID = info.StageID
+	c.StageID = int(info.StageID)
+	c.OwnerID = int(info.OwnerID)
+	c.Details = info.Details
+	c.StartDate = info.StartDate
+	c.AttachedData = nil
 
 	err = db.Save(&c).Error
 	if err == nil {
 		// [DIRTY] need to ensure that info.AttachedData has valid IDs
 		// [CRITICAL] need to ensure that only IDs are updated
-		err = db.Model(&c).Association("AttachedData").Replace(info.AttachedData).Error
+		err = db.Model(&c).Association("AttachedData").Replace(info.AttachedData)
 	}
 
 	return err
@@ -39,7 +43,8 @@ func (m *CardsManager) Update(id int, info CardUpdate) error {
 
 func (m *CardsManager) Add(info CardUpdate) (int, error) {
 	c := Card{
-		Name: info.Name,
+		StageID: int(info.StageID),
+		Name:    info.Name,
 	}
 
 	err := db.Save(&c).Error

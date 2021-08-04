@@ -29,7 +29,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Put("/cards/:id", func(w http.ResponseWriter, r *http.Request) {
+	r.Put("/cards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
 		info, err := ParseFormCard(w, r)
 		if err == nil {
@@ -43,7 +43,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Delete("/cards/:id", func(w http.ResponseWriter, r *http.Request) {
+	r.Delete("/cards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		err := cards.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -52,7 +52,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Get("/data/:id/:name", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/data/{id}/{name}", func(w http.ResponseWriter, r *http.Request) {
 		res, err := bdata.ToResponse(w, NumberParam(r, "id"))
 
 		if err != nil {
@@ -63,16 +63,15 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Post("/data", func(w http.ResponseWriter, r *http.Request) {
-		id, err := bdata.FromRequest(r, "upload")
-
+		rec, err := bdata.FromRequest(r, "upload")
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
-			format.JSON(w, 200, Response{id})
+			format.JSON(w, 200, rec)
 		}
 	})
 
-	r.Get("/stages", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/columns", func(w http.ResponseWriter, r *http.Request) {
 		data, err := stages.GetAll()
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -81,7 +80,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Post("/stages", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/columns", func(w http.ResponseWriter, r *http.Request) {
 		var id int
 		info, err := ParseFormStage(w, r)
 		if err == nil {
@@ -94,7 +93,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Put("/stages/:id", func(w http.ResponseWriter, r *http.Request) {
+	r.Put("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
 		info, err := ParseFormStage(w, r)
 		if err == nil {
@@ -108,7 +107,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Delete("/stages/:id", func(w http.ResponseWriter, r *http.Request) {
+	r.Delete("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
 		err := stages.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())

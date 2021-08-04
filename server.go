@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,8 +13,8 @@ import (
 	"github.com/jinzhu/configor"
 	"github.com/unrolled/render"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var format = render.New()
@@ -30,11 +31,13 @@ func main() {
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
 
 	var err error
-	db, err = gorm.Open("sqlite3", Config.DB.Path)
+
+	db, err = gorm.Open(sqlite.Open(Config.DB.Path), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic("failed to connect database")
 	}
-	defer db.Close()
 
 	db.AutoMigrate(&Card{})
 	db.AutoMigrate(&Stage{})

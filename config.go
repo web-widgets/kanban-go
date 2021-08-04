@@ -1,6 +1,7 @@
 package main
 
 type ConfigServer struct {
+	URL  string
 	Port string
 	Cors bool
 }
