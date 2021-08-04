@@ -8,7 +8,7 @@ steps:
   environment:
     GOPROXY: https://goproxy.webix.io
   commands:
-    - CGO_ENABLED=0 GOARCH=386 go build .
+    - go build .
 
 - name: docker
   image: plugins/docker

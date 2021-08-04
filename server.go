@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
@@ -29,6 +30,7 @@ var Config AppConfig
 
 func main() {
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
+	fmt.Printf("%+v", Config)
 
 	var err error
 

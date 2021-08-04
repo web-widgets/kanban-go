@@ -1,6 +1,6 @@
-FROM centurylink/ca-certs
+FROM debian:10-slim
 WORKDIR /app
-COPY ./kanban-go /app
-COPY ./uploads /app
+ADD ./kanban-go /app
+ADD ./uploads /app/uploads
 
 CMD ["/app/kanban-go"]
