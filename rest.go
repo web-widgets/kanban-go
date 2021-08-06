@@ -43,6 +43,20 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
+	r.Put("/cards/{id}/move", func(w http.ResponseWriter, r *http.Request) {
+		var id int
+		info, err := ParseFormMoveCard(w, r)
+		if err == nil {
+			id = NumberParam(r, "id")
+			err = cards.Move(id, info.Card, info.Before)
+		}
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{id})
+		}
+	})
+
 	r.Delete("/cards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		err := cards.Delete(NumberParam(r, "id"))
 		if err != nil {

@@ -13,7 +13,7 @@ func (f *FuzzyInt) UnmarshalJSON(data []byte) error {
 	var temp int
 	if data[0] == QuotesByte {
 		// empty string => 0
-		if len(data) > 3 {
+		if len(data) > 2 {
 			err = json.Unmarshal(data[1:len(data)-1], &temp)
 		}
 	} else {

@@ -9,6 +9,7 @@ type Card struct {
 	Details      string        `json:"details"`
 	StartDate    *time.Time    `json:"start_date"`
 	OwnerID      int           `json:"owner"`
+	Index        int           `json:"i"`
 	AttachedData []*BinaryData `json:"attached,omitempty"`
 }
 
@@ -19,6 +20,11 @@ type CardUpdate struct {
 	StartDate    *time.Time    `json:"start_date"`
 	OwnerID      FuzzyInt      `json:"owner"`
 	AttachedData []*BinaryData `json:"attached,omitempty"`
+}
+
+type CardMove struct {
+	Card   CardUpdate `json:"card"`
+	Before FuzzyInt   `json:"before"`
 }
 
 type Stage struct {

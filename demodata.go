@@ -27,16 +27,19 @@ func dataUp() {
 		Name:         "Reordering in the Kanban",
 		StageID:      stage4.ID,
 		AttachedData: []*BinaryData{&data1},
+		Index:        1,
 	}
 	db.Create(&card1)
 	card2 := Card{
 		Name:    "UX optimization",
 		StageID: stage2.ID,
+		Index:   1,
 	}
 	db.Create(&card2)
 	card3 := Card{
 		Name:    "Accessibility",
 		StageID: stage2.ID,
+		Index:   2,
 	}
 	db.Create(&card3)
 }

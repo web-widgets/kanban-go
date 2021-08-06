@@ -92,6 +92,16 @@ func ParseFormCard(w http.ResponseWriter, r *http.Request) (CardUpdate, error) {
 	return c, err
 }
 
+func ParseFormMoveCard(w http.ResponseWriter, r *http.Request) (CardMove, error) {
+	c := CardMove{}
+
+	body := http.MaxBytesReader(w, r.Body, 1048576)
+	dec := json.NewDecoder(body)
+	err := dec.Decode(&c)
+
+	return c, err
+}
+
 func ParseFormStage(w http.ResponseWriter, r *http.Request) (StageUpdate, error) {
 	c := StageUpdate{}
 
