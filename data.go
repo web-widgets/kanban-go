@@ -9,7 +9,7 @@ type Card struct {
 	Details      string        `json:"details"`
 	StartDate    *time.Time    `json:"start_date"`
 	OwnerID      int           `json:"owner"`
-	Index        int           `json:"i"`
+	Index        int           `json:"-"`
 	AttachedData []*BinaryData `json:"attached,omitempty"`
 }
 
