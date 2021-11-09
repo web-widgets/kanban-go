@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/go-chi/chi"
 	"net/http"
+
+	"github.com/go-chi/chi"
 )
 
 func initRoutes(r chi.Router) {
@@ -48,7 +49,7 @@ func initRoutes(r chi.Router) {
 		info, err := ParseFormMoveCard(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = cards.Move(id, info.Card, info.Before)
+			err = cards.Move(id, info.Card, int(info.Before))
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -66,7 +67,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Get("/data/{id}/{name}", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/uploads/{id}/{name}", func(w http.ResponseWriter, r *http.Request) {
 		res, err := bdata.ToResponse(w, NumberParam(r, "id"))
 
 		if err != nil {
@@ -76,7 +77,7 @@ func initRoutes(r chi.Router) {
 		}
 	})
 
-	r.Post("/data", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/uploads", func(w http.ResponseWriter, r *http.Request) {
 		rec, err := bdata.FromRequest(r, "upload")
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -86,7 +87,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Get("/columns", func(w http.ResponseWriter, r *http.Request) {
-		data, err := stages.GetAll()
+		data, err := columns.GetAll()
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -96,9 +97,9 @@ func initRoutes(r chi.Router) {
 
 	r.Post("/columns", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormStage(w, r)
+		info, err := ParseFormColumn(w, r)
 		if err == nil {
-			id, err = stages.Add(info)
+			id, err = columns.Add(info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -109,10 +110,10 @@ func initRoutes(r chi.Router) {
 
 	r.Put("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormStage(w, r)
+		info, err := ParseFormColumn(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = stages.Update(id, info)
+			err = columns.Update(id, info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -122,7 +123,52 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Delete("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
-		err := stages.Delete(NumberParam(r, "id"))
+		err := columns.Delete(NumberParam(r, "id"))
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{})
+		}
+	})
+
+	r.Get("/rows", func(w http.ResponseWriter, r *http.Request) {
+		data, err := rows.GetAll()
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, data)
+		}
+	})
+
+	r.Post("/rows", func(w http.ResponseWriter, r *http.Request) {
+		var id int
+		info, err := ParseFormRow(w, r)
+		if err == nil {
+			id, err = rows.Add(info)
+		}
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{id})
+		}
+	})
+
+	r.Put("/rows/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var id int
+		info, err := ParseFormRow(w, r)
+		if err == nil {
+			id = NumberParam(r, "id")
+			err = rows.Update(id, info)
+		}
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{id})
+		}
+	})
+
+	r.Delete("/rows/{id}", func(w http.ResponseWriter, r *http.Request) {
+		err := rows.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
