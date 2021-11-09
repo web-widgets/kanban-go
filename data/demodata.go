@@ -4,7 +4,6 @@ func dataDown() {
 	mustExec("DELETE from cards")
 	mustExec("DELETE from columns")
 	mustExec("DELETE from rows")
-	mustExec("DELETE from stages")
 	mustExec("DELETE from binary_data")
 }
 
