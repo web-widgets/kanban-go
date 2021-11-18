@@ -11,8 +11,9 @@ func dataDown() {
 	mustExec("DELETE from binary_data")
 }
 
-func formatDate(date) {
-    return date.Format("EEE MMM dd YYYY HH:mm:ss z")
+func formatDate(date string) *time.Time {
+	t, _ := time.Parse(time.RFC3339, date)
+	return &t
 }
 
 func dataUp() {
@@ -38,13 +39,13 @@ func dataUp() {
 	db.Create(&data3)
 
 	card1 := Card{
-		Name:     "Integration with Angular/React",
-		ColumnID: stage1.ID,
-		RowID:    row1.ID,
-		Index:    1,
-		Priority: 1,
-		Color:    "#65D3B3",
-		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.Local)),
+		Name:      "Integration with Angular/React",
+		ColumnID:  stage1.ID,
+		RowID:     row1.ID,
+		Index:     1,
+		Priority:  1,
+		Color:     "#65D3B3",
+		StartDate: formatDate("2018-01-01T00:00:00Z"),
 	}
 	db.Create(&card1)
 	card2 := Card{
@@ -57,13 +58,13 @@ func dataUp() {
 	}
 	db.Create(&card2)
 	card3 := Card{
-		Name:     "Searching and filtering",
-		ColumnID: stage1.ID,
-		RowID:    row1.ID,
-		Index:    2,
-		Priority: 1,
-		Color:    "#58C3FE",
-		StartDate: formatDate(time.Date(2021, time.January, 9, 0, 0, 0, 0, time.UTC)),
+		Name:      "Searching and filtering",
+		ColumnID:  stage1.ID,
+		RowID:     row1.ID,
+		Index:     2,
+		Priority:  1,
+		Color:     "#58C3FE",
+		StartDate: formatDate("2018-01-01T00:00:00Z"),
 	}
 	db.Create(&card3)
 	card4 := Card{
@@ -72,25 +73,25 @@ func dataUp() {
 		RowID:        row1.ID,
 		Color:        "#FFC975",
 		Progress:     75,
-		StartDate: formatDate(time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC)),
+		StartDate:    formatDate("2018-01-01T00:00:00Z"),
 		AttachedData: []*BinaryData{&data1},
 	}
 	db.Create(&card4)
 	card5 := Card{
-		Name:     "Custom icons",
-		ColumnID: stage2.ID,
-		RowID:    row2.ID,
-		Color:    "#FFC975",
-		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC)),
+		Name:      "Custom icons",
+		ColumnID:  stage2.ID,
+		RowID:     row2.ID,
+		Color:     "#FFC975",
+		StartDate: formatDate("2019-01-01T00:00:00Z"),
 	}
 	db.Create(&card5)
 	card6 := Card{
-		Name:     "Integration with Gantt",
-		ColumnID: stage2.ID,
-		RowID:    row2.ID,
-		Color:    "#FFC975",
-		Progress: 75,
-		StartDate: formatDate(time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC)),
+		Name:      "Integration with Gantt",
+		ColumnID:  stage2.ID,
+		RowID:     row2.ID,
+		Color:     "#FFC975",
+		Progress:  75,
+		StartDate: formatDate("2020-01-01T00:00:00Z"),
 	}
 	db.Create(&card6)
 	card7 := Card{
@@ -111,12 +112,12 @@ func dataUp() {
 	}
 	db.Create(&card8)
 	card9 := Card{
-		Name:     "Create cards and lists from the UI and from code",
-		ColumnID: stage4.ID,
-		RowID:    row1.ID,
-		Priority: 3,
-		Color:    "#65D3B3",
-		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC)),
+		Name:      "Create cards and lists from the UI and from code",
+		ColumnID:  stage4.ID,
+		RowID:     row1.ID,
+		Priority:  3,
+		Color:     "#65D3B3",
+		StartDate: formatDate("2018-06-08T00:00:00Z"),
 	}
 	db.Create(&card9)
 	card10 := Card{
@@ -127,13 +128,13 @@ func dataUp() {
 	}
 	db.Create(&card10)
 	card11 := Card{
-		Name:     "Progress bar",
-		ColumnID: stage4.ID,
-		RowID:    row2.ID,
-		Priority: 1,
-		Color:    "#FFC975",
-		Progress: 100,
-		StartDate: formatDate(time.Date(2020, time.December, 9, 0, 0, 0, 0, time.UTC)),
+		Name:      "Progress bar",
+		ColumnID:  stage4.ID,
+		RowID:     row2.ID,
+		Priority:  1,
+		Color:     "#FFC975",
+		Progress:  100,
+		StartDate: formatDate("2018-01-01T00:00:00Z"),
 	}
 	db.Create(&card11)
 }
