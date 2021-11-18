@@ -55,15 +55,17 @@ func dataUp() {
 		Index:    1,
 		Priority: 3,
 		Color:    "#58C3FE",
+		Progress: 1,
 	}
 	db.Create(&card2)
 	card3 := Card{
 		Name:      "Searching and filtering",
 		ColumnID:  stage1.ID,
-		RowID:     row1.ID,
+		RowID:     row2.ID,
 		Index:     2,
 		Priority:  1,
 		Color:     "#58C3FE",
+		Progress:  1,
 		StartDate: formatDate("2018-01-01T00:00:00Z"),
 	}
 	db.Create(&card3)
@@ -81,7 +83,7 @@ func dataUp() {
 		Name:      "Custom icons",
 		ColumnID:  stage2.ID,
 		RowID:     row2.ID,
-		Color:     "#FFC975",
+		Color:     "#65D3B3",
 		StartDate: formatDate("2019-01-01T00:00:00Z"),
 	}
 	db.Create(&card5)
