@@ -26,24 +26,30 @@ type CardMove struct {
 	Before common.FuzzyInt `json:"before"`
 }
 
-type CardsManager struct{}
+func NewCardsDAO(db *gorm.DB) *CardsDAO {
+	return &CardsDAO{db}
+}
 
-func (m *CardsManager) GetAll() ([]Card, error) {
+type CardsDAO struct {
+	db *gorm.DB
+}
+
+func (m *CardsDAO) GetAll() ([]Card, error) {
 	cards := make([]Card, 0)
-	err := db.Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-		return db.Order("binary_data.id ASC")
+	err := m.db.Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+		return m.db.Order("binary_data.id ASC")
 	}).Order("`index` asc").Find(&cards).Error
 	return cards, err
 }
 
-func (m *CardsManager) Delete(id int) error {
-	err := db.Delete(&Card{}, id).Error
+func (m *CardsDAO) Delete(id int) error {
+	err := m.db.Delete(&Card{}, id).Error
 	return err
 }
 
-func (m *CardsManager) Update(id int, info CardUpdate) error {
+func (m *CardsDAO) Update(id int, info CardUpdate) error {
 	c := Card{}
-	err := db.Find(&c, id).Error
+	err := m.db.Find(&c, id).Error
 	if err != nil || c.ID == 0 {
 		return err
 	}
@@ -57,10 +63,10 @@ func (m *CardsManager) Update(id int, info CardUpdate) error {
 	c.Color = info.Color
 	c.AttachedData = nil
 
-	err = db.Save(&c).Error
+	err = m.db.Save(&c).Error
 	if err == nil {
 		// [DIRTY] need to ensure that info.AttachedData has valid IDs
-		err = db.Model(&BinaryData{}).Where("card_id = ?", c.ID).Update("card_id", nil).Error
+		err = m.db.Model(&BinaryData{}).Where("card_id = ?", c.ID).Update("card_id", nil).Error
 		if err != nil {
 			return err
 		}
@@ -70,14 +76,14 @@ func (m *CardsManager) Update(id int, info CardUpdate) error {
 			for i, x := range info.AttachedData {
 				tempIDs[i] = x.ID
 			}
-			err = db.Model(&BinaryData{}).Where("id in (?)", tempIDs).Update("card_id", c.ID).Error
+			err = m.db.Model(&BinaryData{}).Where("id in (?)", tempIDs).Update("card_id", c.ID).Error
 		}
 	}
 
 	return err
 }
 
-func (m *CardsManager) Add(info CardUpdate) (int, error) {
+func (m *CardsDAO) Add(info CardUpdate) (int, error) {
 	column := int(info.ColumnID)
 	row := int(info.ColumnID)
 
@@ -94,17 +100,17 @@ func (m *CardsManager) Add(info CardUpdate) (int, error) {
 		Name:     info.Name,
 	}
 
-	err = db.Save(&c).Error
+	err = m.db.Save(&c).Error
 	return c.ID, err
 }
 
-func (m *CardsManager) getMaxIndex(column int, row int) (int, error) {
+func (m *CardsDAO) getMaxIndex(column int, row int) (int, error) {
 	if column == 0 && row == 0 {
 		return 0, nil
 	}
 
 	c2 := Card{}
-	stm := db
+	stm := m.db
 	if column != 0 {
 		stm = stm.Where("column_id=?", column)
 	}
@@ -119,9 +125,9 @@ func (m *CardsManager) getMaxIndex(column int, row int) (int, error) {
 	return c2.Index + 1, err
 }
 
-func (m *CardsManager) Move(id int, card CardUpdate, before int) error {
+func (m *CardsDAO) Move(id int, card CardUpdate, before int) error {
 	c := Card{}
-	err := db.Find(&c, id).Error
+	err := m.db.Find(&c, id).Error
 	if err != nil || c.ID == 0 {
 		return err
 	}
@@ -136,7 +142,7 @@ func (m *CardsManager) Move(id int, card CardUpdate, before int) error {
 	if before != 0 {
 		// get move-before item
 		c2 := Card{}
-		err = db.Find(&c2, before).Error
+		err = m.db.Find(&c2, before).Error
 		toIndex = c2.Index
 	} else {
 		// get index after last item on the stage
@@ -147,13 +153,13 @@ func (m *CardsManager) Move(id int, card CardUpdate, before int) error {
 	}
 
 	// remove item from original stage
-	err = db.Exec("update cards set `index` = `index` - 1 where column_id = ? and row_id = ? and `index` > ?", fromColumn, fromRow, fromIndex).Error
+	err = m.db.Exec("update cards set `index` = `index` - 1 where column_id = ? and row_id = ? and `index` > ?", fromColumn, fromRow, fromIndex).Error
 	if err != nil {
 		return err
 	}
 
 	// create place in target stage
-	err = db.Exec("update cards set `index` = `index` + 1 where column_id = ? and row_id = ? and `index` >= ?", column, row, toIndex).Error
+	err = m.db.Exec("update cards set `index` = `index` + 1 where column_id = ? and row_id = ? and `index` >= ?", column, row, toIndex).Error
 	if err != nil {
 		return err
 	}
@@ -167,7 +173,7 @@ func (m *CardsManager) Move(id int, card CardUpdate, before int) error {
 
 	c.ColumnID = column
 	c.RowID = row
-	err = db.Save(&c).Error
+	err = m.db.Save(&c).Error
 
 	return err
 }

@@ -2,14 +2,15 @@ package main
 
 import (
 	"net/http"
+	"web-widgets/kanban-go/data"
 
 	"github.com/go-chi/chi"
 )
 
-func initRoutes(r chi.Router) {
+func initRoutes(r chi.Router, dao *data.DAO) {
 
 	r.Get("/cards", func(w http.ResponseWriter, r *http.Request) {
-		data, err := cards.GetAll()
+		data, err := dao.Cards.GetAll()
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -21,7 +22,7 @@ func initRoutes(r chi.Router) {
 		var id int
 		info, err := ParseFormCard(w, r)
 		if err == nil {
-			id, err = cards.Add(info)
+			id, err = dao.Cards.Add(info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -35,7 +36,7 @@ func initRoutes(r chi.Router) {
 		info, err := ParseFormCard(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = cards.Update(id, info)
+			err = dao.Cards.Update(id, info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -49,7 +50,7 @@ func initRoutes(r chi.Router) {
 		info, err := ParseFormMoveCard(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = cards.Move(id, info.Card, int(info.Before))
+			err = dao.Cards.Move(id, info.Card, int(info.Before))
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -59,7 +60,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Delete("/cards/{id}", func(w http.ResponseWriter, r *http.Request) {
-		err := cards.Delete(NumberParam(r, "id"))
+		err := dao.Cards.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -68,7 +69,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Get("/uploads/{id}/{name}", func(w http.ResponseWriter, r *http.Request) {
-		res, err := bdata.ToResponse(w, NumberParam(r, "id"))
+		res, err := dao.Files.ToResponse(w, NumberParam(r, "id"))
 
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -78,7 +79,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Post("/uploads", func(w http.ResponseWriter, r *http.Request) {
-		rec, err := bdata.FromRequest(r, "upload")
+		rec, err := dao.Files.FromRequest(r, "upload")
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -87,7 +88,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Get("/columns", func(w http.ResponseWriter, r *http.Request) {
-		data, err := columns.GetAll()
+		data, err := dao.Columns.GetAll()
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -99,7 +100,7 @@ func initRoutes(r chi.Router) {
 		var id int
 		info, err := ParseFormColumn(w, r)
 		if err == nil {
-			id, err = columns.Add(info)
+			id, err = dao.Columns.Add(info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -113,7 +114,7 @@ func initRoutes(r chi.Router) {
 		info, err := ParseFormColumn(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = columns.Update(id, info)
+			err = dao.Columns.Update(id, info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -123,7 +124,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Delete("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
-		err := columns.Delete(NumberParam(r, "id"))
+		err := dao.Columns.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -132,7 +133,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Get("/rows", func(w http.ResponseWriter, r *http.Request) {
-		data, err := rows.GetAll()
+		data, err := dao.Rows.GetAll()
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {
@@ -144,7 +145,7 @@ func initRoutes(r chi.Router) {
 		var id int
 		info, err := ParseFormRow(w, r)
 		if err == nil {
-			id, err = rows.Add(info)
+			id, err = dao.Rows.Add(info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -158,7 +159,7 @@ func initRoutes(r chi.Router) {
 		info, err := ParseFormRow(w, r)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = rows.Update(id, info)
+			err = dao.Rows.Update(id, info)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -168,7 +169,7 @@ func initRoutes(r chi.Router) {
 	})
 
 	r.Delete("/rows/{id}", func(w http.ResponseWriter, r *http.Request) {
-		err := rows.Delete(NumberParam(r, "id"))
+		err := dao.Rows.Delete(NumberParam(r, "id"))
 		if err != nil {
 			format.Text(w, 500, err.Error())
 		} else {

@@ -4,11 +4,11 @@ import (
 	"time"
 )
 
-func dataDown() {
-	mustExec("DELETE from cards")
-	mustExec("DELETE from columns")
-	mustExec("DELETE from rows")
-	mustExec("DELETE from binary_data")
+func dataDown(d *DAO) {
+	d.mustExec("DELETE from cards")
+	d.mustExec("DELETE from columns")
+	d.mustExec("DELETE from rows")
+	d.mustExec("DELETE from binary_data")
 }
 
 func formatDate(date string) *time.Time {
@@ -16,7 +16,9 @@ func formatDate(date string) *time.Time {
 	return &t
 }
 
-func dataUp() {
+func dataUp(d *DAO) {
+	db := d.GetDB()
+
 	stage1 := Column{Name: "Backlog"}
 	db.Create(&stage1)
 	stage2 := Column{Name: "In Progress"}

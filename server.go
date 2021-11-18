@@ -14,24 +14,13 @@ import (
 
 var format = render.New()
 
-var cards *data.CardsManager
-var bdata *data.DataManager
-var columns *data.ColumnsManager
-var rows *data.RowsManager
-
 // Config is the structure that stores the settings for this backend app
 var Config AppConfig
 
 func main() {
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
 
-	bdata = data.NewDataManager(Config.Server.URL, Config.BinaryData)
-	columns = &data.ColumnsManager{}
-	rows = &data.RowsManager{}
-
-	data.Init(Config.DB)
-
-	cards = &data.CardsManager{}
+	dao := data.NewDAO(Config.DB, Config.Server.URL, Config.BinaryData)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -48,7 +37,7 @@ func main() {
 		r.Use(c.Handler)
 	}
 
-	initRoutes(r)
+	initRoutes(r, dao)
 
 	log.Printf("Starting webserver at port " + Config.Server.Port)
 	err := http.ListenAndServe(Config.Server.Port, r)

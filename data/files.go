@@ -8,18 +8,21 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
+	"gorm.io/gorm"
 )
 
-func NewDataManager(httpPath, storePath string) *DataManager {
-	return &DataManager{storePath, httpPath}
+func NewFilesDAO(db *gorm.DB, httpPath, storePath string) *FilesDAO {
+	return &FilesDAO{db, storePath, httpPath}
 }
 
-type DataManager struct {
+type FilesDAO struct {
+	db        *gorm.DB
 	storePath string
 	httpPath  string
 }
 
-func (m *DataManager) FromRequest(r *http.Request, field string) (BinaryData, error) {
+func (m *FilesDAO) FromRequest(r *http.Request, field string) (BinaryData, error) {
 	// 10 MB
 	r.ParseMultipartForm(10 << 20)
 	rec := BinaryData{}
@@ -44,21 +47,21 @@ func (m *DataManager) FromRequest(r *http.Request, field string) (BinaryData, er
 
 	rec.Name = handler.Filename
 	rec.Path = filepath.Base(tempFile.Name())
-	err = db.Save(&rec).Error
+	err = m.db.Save(&rec).Error
 	if err != nil {
 		return rec, err
 	}
 
 	//FIXME - use GUID for ID
 	rec.URL = fmt.Sprintf("%s/uploads/%d/%s", m.httpPath, rec.ID, rec.Name)
-	err = db.Save(&rec).Error
+	err = m.db.Save(&rec).Error
 
 	return rec, err
 }
 
-func (m *DataManager) ToResponse(w http.ResponseWriter, id int) (bool, error) {
+func (m *FilesDAO) ToResponse(w http.ResponseWriter, id int) (bool, error) {
 	data := BinaryData{}
-	err := db.Find(&data, id).Error
+	err := m.db.Find(&data, id).Error
 	if err != nil || data.ID == 0 {
 		return false, err
 	}
