@@ -1,5 +1,9 @@
 package data
 
+import (
+	"time"
+)
+
 func dataDown() {
 	mustExec("DELETE from cards")
 	mustExec("DELETE from columns")
