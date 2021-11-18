@@ -11,6 +11,10 @@ func dataDown() {
 	mustExec("DELETE from binary_data")
 }
 
+func formatDate(date) {
+    return date.Format("EEE MMM dd YYYY HH:mm:ss z")
+}
+
 func dataUp() {
 	stage1 := Column{Name: "Backlog"}
 	db.Create(&stage1)
@@ -40,7 +44,7 @@ func dataUp() {
 		Index:    1,
 		Priority: 1,
 		Color:    "#65D3B3",
-		StartDate: time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.Local)),
 	}
 	db.Create(&card1)
 	card2 := Card{
@@ -59,7 +63,7 @@ func dataUp() {
 		Index:    2,
 		Priority: 1,
 		Color:    "#58C3FE",
-		StartDate: time.Date(2021, time.January, 9, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2021, time.January, 9, 0, 0, 0, 0, time.UTC)),
 	}
 	db.Create(&card3)
 	card4 := Card{
@@ -68,7 +72,7 @@ func dataUp() {
 		RowID:        row1.ID,
 		Color:        "#FFC975",
 		Progress:     75,
-		StartDate: time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC)),
 		AttachedData: []*BinaryData{&data1},
 	}
 	db.Create(&card4)
@@ -77,7 +81,7 @@ func dataUp() {
 		ColumnID: stage2.ID,
 		RowID:    row2.ID,
 		Color:    "#FFC975",
-		StartDate: time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC)),
 	}
 	db.Create(&card5)
 	card6 := Card{
@@ -86,7 +90,7 @@ func dataUp() {
 		RowID:    row2.ID,
 		Color:    "#FFC975",
 		Progress: 75,
-		StartDate: time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2020, time.December, 21, 0, 0, 0, 0, time.UTC)),
 	}
 	db.Create(&card6)
 	card7 := Card{
@@ -112,7 +116,7 @@ func dataUp() {
 		RowID:    row1.ID,
 		Priority: 3,
 		Color:    "#65D3B3",
-		StartDate: time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2021, time.January, 7, 0, 0, 0, 0, time.UTC)),
 	}
 	db.Create(&card9)
 	card10 := Card{
@@ -129,7 +133,7 @@ func dataUp() {
 		Priority: 1,
 		Color:    "#FFC975",
 		Progress: 100,
-		StartDate: time.Date(2020, time.December, 9, 0, 0, 0, 0, time.UTC),
+		StartDate: formatDate(time.Date(2020, time.December, 9, 0, 0, 0, 0, time.UTC)),
 	}
 	db.Create(&card11)
 }
