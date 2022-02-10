@@ -8,22 +8,24 @@ import (
 )
 
 type CardUpdate struct {
-	Name         string          `json:"label"`
-	ColumnID     common.FuzzyInt `json:"column"`
-	RowID        common.FuzzyInt `json:"row"`
-	Details      string          `json:"description"`
-	Priority     common.FuzzyInt `json:"priority"`
-	StartDate    *time.Time      `json:"start_date"`
-	EndDate      *time.Time      `json:"end_date"`
-	Progress     common.FuzzyInt `json:"porgress"`
-	Color        string          `json:"color"`
-	OwnerID      common.FuzzyInt `json:"owner"`
-	AttachedData []*BinaryData   `json:"attached,omitempty"`
+	CardPosUpdate
+	Card struct {
+		Name         string          `json:"label"`
+		Details      string          `json:"description"`
+		Priority     common.FuzzyInt `json:"priority"`
+		StartDate    *time.Time      `json:"start_date"`
+		EndDate      *time.Time      `json:"end_date"`
+		Progress     common.FuzzyInt `json:"progress"`
+		Color        string          `json:"color"`
+		OwnerID      common.FuzzyInt `json:"owner"`
+		AttachedData []*BinaryData   `json:"attached"`
+	} `json:"card"`
 }
 
-type CardMove struct {
-	Card   CardUpdate      `json:"card"`
-	Before common.FuzzyInt `json:"before"`
+type CardPosUpdate struct {
+	Before   common.FuzzyInt `json:"before"`
+	ColumnID common.FuzzyInt `json:"columnId"`
+	RowID    common.FuzzyInt `json:"rowId"`
 }
 
 func NewCardsDAO(db *gorm.DB) *CardsDAO {
@@ -42,17 +44,28 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 	return cards, err
 }
 
+func (m *CardsDAO) GetOne(id int) (*Card, error) {
+	card := Card{}
+	err := m.db.Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+		return m.db.Order("binary_data.id ASC")
+	}).First(&card, id).Error
+
+	return &card, err
+}
+
 func (m *CardsDAO) Delete(id int) error {
 	err := m.db.Delete(&Card{}, id).Error
 	return err
 }
 
-func (m *CardsDAO) Update(id int, info CardUpdate) error {
+func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 	c := Card{}
 	err := m.db.Find(&c, id).Error
 	if err != nil || c.ID == 0 {
 		return err
 	}
+
+	info := upd.Card
 
 	c.Name = info.Name
 	c.Details = info.Details
@@ -85,7 +98,7 @@ func (m *CardsDAO) Update(id int, info CardUpdate) error {
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
 	column := int(info.ColumnID)
-	row := int(info.ColumnID)
+	row := int(info.RowID)
 
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex(column, row)
@@ -97,7 +110,7 @@ func (m *CardsDAO) Add(info CardUpdate) (int, error) {
 		ColumnID: column,
 		RowID:    row,
 		Index:    toIndex,
-		Name:     info.Name,
+		Name:     info.Card.Name,
 	}
 
 	err = m.db.Save(&c).Error
@@ -125,7 +138,7 @@ func (m *CardsDAO) getMaxIndex(column int, row int) (int, error) {
 	return c2.Index + 1, err
 }
 
-func (m *CardsDAO) Move(id int, card CardUpdate, before int) error {
+func (m *CardsDAO) Move(id int, upd CardPosUpdate) error {
 	c := Card{}
 	err := m.db.Find(&c, id).Error
 	if err != nil || c.ID == 0 {
@@ -133,16 +146,16 @@ func (m *CardsDAO) Move(id int, card CardUpdate, before int) error {
 	}
 
 	var toIndex int
-	column := int(card.ColumnID)
-	row := int(card.RowID)
+	column := int(upd.ColumnID)
+	row := int(upd.RowID)
 	fromIndex := c.Index
 	fromColumn := c.ColumnID
 	fromRow := c.RowID
 
-	if before != 0 {
+	if upd.Before != 0 {
 		// get move-before item
 		c2 := Card{}
-		err = m.db.Find(&c2, before).Error
+		err = m.db.Find(&c2, upd.Before).Error
 		toIndex = c2.Index
 	} else {
 		// get index after last item on the stage

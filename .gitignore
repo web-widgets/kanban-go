@@ -4,3 +4,4 @@ kanban-go
 db.sqlite
 application*
 uploads
+__debug_bin

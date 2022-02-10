@@ -30,8 +30,8 @@ func ParseFormCard(w http.ResponseWriter, r *http.Request) (data.CardUpdate, err
 	return c, err
 }
 
-func ParseFormMoveCard(w http.ResponseWriter, r *http.Request) (data.CardMove, error) {
-	c := data.CardMove{}
+func ParseFormMoveCard(w http.ResponseWriter, r *http.Request) (data.CardPosUpdate, error) {
+	c := data.CardPosUpdate{}
 
 	body := http.MaxBytesReader(w, r.Body, 1048576)
 	dec := json.NewDecoder(body)
@@ -50,6 +50,26 @@ func ParseFormColumn(w http.ResponseWriter, r *http.Request) (data.ColumnUpdate,
 	return c, err
 }
 
+func ParseFormColumnMove(w http.ResponseWriter, r *http.Request) (data.ColumnMove, error) {
+	c := data.ColumnMove{}
+
+	body := http.MaxBytesReader(w, r.Body, 1048576)
+	dec := json.NewDecoder(body)
+	err := dec.Decode(&c)
+
+	return c, err
+}
+
+func ParseFormRowMove(w http.ResponseWriter, r *http.Request) (data.RowMove, error) {
+	row := data.RowMove{}
+
+	body := http.MaxBytesReader(w, r.Body, 1048576)
+	dec := json.NewDecoder(body)
+	err := dec.Decode(&row)
+
+	return row, err
+}
+
 func ParseFormRow(w http.ResponseWriter, r *http.Request) (data.RowUpdate, error) {
 	c := data.RowUpdate{}
 
@@ -58,4 +78,10 @@ func ParseFormRow(w http.ResponseWriter, r *http.Request) (data.RowUpdate, error
 	err := dec.Decode(&c)
 
 	return c, err
+}
+
+func geDeviceID(r *http.Request) int {
+	v := r.Context().Value("device_id")
+	asInt, _ := v.(int)
+	return asInt
 }

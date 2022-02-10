@@ -5,7 +5,7 @@ import "web-widgets/kanban-go/data"
 type ConfigServer struct {
 	URL  string
 	Port string
-	Cors bool
+	Cors []string
 }
 
 type AppConfig struct {

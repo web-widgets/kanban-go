@@ -19,18 +19,18 @@ func formatDate(date string) *time.Time {
 func dataUp(d *DAO) {
 	db := d.GetDB()
 
-	stage1 := Column{Name: "Backlog"}
+	stage1 := Column{Name: "Backlog", Index: 1}
 	db.Create(&stage1)
-	stage2 := Column{Name: "In Progress"}
+	stage2 := Column{Name: "In Progress", Index: 2}
 	db.Create(&stage2)
-	stage3 := Column{Name: "Testing"}
+	stage3 := Column{Name: "Testing", Index: 3}
 	db.Create(&stage3)
-	stage4 := Column{Name: "Done"}
+	stage4 := Column{Name: "Done", Index: 4}
 	db.Create(&stage4)
 
-	row1 := Row{Name: "Feature"}
+	row1 := Row{Name: "Feature", Index: 1}
 	db.Create(&row1)
-	row2 := Row{Name: "Task"}
+	row2 := Row{Name: "Task", Index: 2}
 	db.Create(&row2)
 
 	data1 := BinaryData{Name: "demo.png", Path: "x001"}

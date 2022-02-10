@@ -20,7 +20,7 @@ type Card struct {
 	StartDate    *time.Time    `json:"start_date"`
 	EndDate      *time.Time    `json:"end_date"`
 	Progress     int           `json:"progress"`
-	AttachedData []*BinaryData `json:"attached,omitempty"`
+	AttachedData []*BinaryData `json:"attached"`
 	Color        string        `json:"color"`
 	Priority     int           `json:"priority"`
 
@@ -48,16 +48,22 @@ type Status struct {
 }
 
 type Column struct {
-	ID   int    `json:"id"`
-	Name string `json:"label"`
+	ID        int    `json:"id"`
+	Name      string `json:"label"`
+	Collapsed bool   `json:"collapsed"`
+
+	Index int `json:"-"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
 }
 
 type Row struct {
-	ID   int    `json:"id"`
-	Name string `json:"label"`
+	ID        int    `json:"id"`
+	Name      string `json:"label"`
+	Collapsed bool   `json:"collapsed"`
+
+	Index int `json:"-"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
