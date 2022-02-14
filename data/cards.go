@@ -86,10 +86,20 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 
 		if len(info.AttachedData) > 0 {
 			tempIDs := make([]int, len(info.AttachedData))
+			var coverId int
 			for i, x := range info.AttachedData {
 				tempIDs[i] = x.ID
+				if x.IsCover {
+					coverId = x.ID
+				}
+			}	
+			err = m.db.Model(&BinaryData{}).Where("id in (?)", tempIDs).Updates(map[string]interface{}{"card_id": c.ID, "is_cover": 0}).Error
+			if err != nil {
+				return err
 			}
-			err = m.db.Model(&BinaryData{}).Where("id in (?)", tempIDs).Update("card_id", c.ID).Error
+			if coverId != 0 {
+				err = m.db.Model(&BinaryData{}).Where("id = ?", coverId).Update("is_cover", true).Error
+			}
 		}
 	}
 

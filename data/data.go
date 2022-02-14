@@ -70,10 +70,11 @@ type Row struct {
 }
 
 type BinaryData struct {
-	ID   int    `json:"id"`
-	Path string `json:"-"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID      int    `json:"id"`
+	Path    string `json:"-"`
+	Name    string `json:"name"`
+	URL     string `json:"url"`
+	IsCover bool   `json:"isCover"`
 
 	CardID  int    `json:"-"`
 	Card    *Card  `json:"-"`
