@@ -146,8 +146,8 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
-				Type: "add-column",
-				From: geDeviceID(r),
+				Type:   "add-column",
+				From:   geDeviceID(r),
 				Column: column,
 			})
 		}
@@ -167,8 +167,8 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
-				Type: "update-column",
-				From: geDeviceID(r),
+				Type:   "update-column",
+				From:   geDeviceID(r),
 				Column: column,
 			})
 		}
@@ -188,8 +188,8 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
-				Type: "move-column",
-				From: geDeviceID(r),
+				Type:   "move-column",
+				From:   geDeviceID(r),
 				Column: column,
 				Before: int(info.Before),
 			})
@@ -206,8 +206,8 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			format.JSON(w, 200, Response{})
 
 			hub.Publish("columns", api.ColumnEvent{
-				Type: "delete-column",
-				From: geDeviceID(r),
+				Type:   "delete-column",
+				From:   geDeviceID(r),
 				Column: column,
 			})
 		}
@@ -237,7 +237,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			hub.Publish("rows", api.RowEvent{
 				Type: "add-row",
 				From: geDeviceID(r),
-				Row: row,
+				Row:  row,
 			})
 		}
 	})
@@ -258,7 +258,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			hub.Publish("rows", api.RowEvent{
 				Type: "update-row",
 				From: geDeviceID(r),
-				Row: row,
+				Row:  row,
 			})
 		}
 	})
@@ -277,9 +277,9 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			row, _ := dao.Rows.GetOne(id)
 			hub.Publish("rows", api.RowEvent{
-				Type: "move-row",
-				From: geDeviceID(r),
-				Row: row,
+				Type:   "move-row",
+				From:   geDeviceID(r),
+				Row:    row,
 				Before: int(info.Before),
 			})
 		}
@@ -297,7 +297,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			hub.Publish("rows", api.RowEvent{
 				Type: "delete-row",
 				From: geDeviceID(r),
-				Row: row,
+				Row:  row,
 			})
 		}
 	})

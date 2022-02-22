@@ -44,7 +44,7 @@ func (m *RowsDAO) Update(id int, info RowUpdate) error {
 	if err != nil || c.ID == 0 {
 		return err
 	}
-	
+
 	if info.Row.Name == "" {
 		c.Collapsed = info.Row.Collapsed
 	} else {

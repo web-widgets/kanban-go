@@ -92,7 +92,7 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 				if x.IsCover {
 					coverId = x.ID
 				}
-			}	
+			}
 			err = m.db.Model(&BinaryData{}).Where("id in (?)", tempIDs).Updates(map[string]interface{}{"card_id": c.ID, "is_cover": 0}).Error
 			if err != nil {
 				return err

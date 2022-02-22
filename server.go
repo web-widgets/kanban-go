@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"web-widgets/kanban-go/api"
@@ -29,7 +28,6 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	fmt.Println(Config.Server.Cors)
 	if len(Config.Server.Cors) > 0 {
 
 		c := cors.New(cors.Options{

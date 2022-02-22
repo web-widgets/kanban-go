@@ -22,18 +22,17 @@ type CardEvent struct {
 
 type ColumnEvent struct {
 	Type   string       `json:"type"`
-	From   int			`json:"-"`
+	From   int          `json:"-"`
 	Column *data.Column `json:"column"`
-	Before int        `json:"before,omitempty"`
+	Before int          `json:"before,omitempty"`
 }
 
 type RowEvent struct {
-	Type   string `json:"type"`
-	From   int	  `json:"-"`
-	Row *data.Row `json:"row"`
-	Before int        `json:"before,omitempty"`
+	Type   string    `json:"type"`
+	From   int       `json:"-"`
+	Row    *data.Row `json:"row"`
+	Before int       `json:"before,omitempty"`
 }
-
 
 func BuildAPI(db *data.DAO) *remote.Server {
 	if remote.MaxSocketMessageSize < 32000 {
