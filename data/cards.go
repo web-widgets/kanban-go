@@ -1,6 +1,7 @@
 package data
 
 import (
+	"encoding/json"
 	"time"
 	"web-widgets/kanban-go/common"
 
@@ -19,6 +20,7 @@ type CardUpdate struct {
 		Color        string          `json:"color"`
 		OwnerID      common.FuzzyInt `json:"owner"`
 		AttachedData []*BinaryData   `json:"attached"`
+		Users        []int           `json:"users"`
 	} `json:"card"`
 }
 
@@ -75,6 +77,8 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 	c.Progress = int(info.Progress)
 	c.Color = info.Color
 	c.AttachedData = nil
+	bytesUsers, _ := json.Marshal(upd.Card.Users)
+	c.Users = string(bytesUsers)
 
 	err = m.db.Save(&c).Error
 	if err == nil {

@@ -28,6 +28,7 @@ type DAO struct {
 	Rows    *RowsDAO
 	Columns *ColumnsDAO
 	Files   *FilesDAO
+	Users   *UsersDAO
 }
 
 func (d *DAO) GetDB() *gorm.DB {
@@ -62,6 +63,7 @@ func NewDAO(config DBConfig, url, drive string) *DAO {
 		Rows:    NewRowsDAO(db),
 		Columns: NewColumnsDAO(db),
 		Files:   NewFilesDAO(db, url, drive),
+		Users:   NewUsersDAO(db),
 	}
 
 	if config.ResetOnStart {

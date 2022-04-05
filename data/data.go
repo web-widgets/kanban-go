@@ -23,9 +23,10 @@ type Card struct {
 	AttachedData []*BinaryData `json:"attached"`
 	Color        string        `json:"color"`
 	Priority     int           `json:"priority"`
+	Users        string        `json:"users"`
 
 	Index         int    `json:"-"`
-	AssignedUsers []User `gorm:"many2many:assigned_users;" json:"users,omitempty"`
+	AssignedUsers []User `gorm:"many2many:assigned_users;" json:"-"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
@@ -34,7 +35,7 @@ type Card struct {
 type User struct {
 	ID     int    `json:"id"`
 	Name   string `json:"label"`
-	Avatar string `json:"avatar"`
+	Avatar string `json:"path"`
 
 	AssignedCards []Card `gorm:"many2many:assigned_users;" json:"-"`
 }
