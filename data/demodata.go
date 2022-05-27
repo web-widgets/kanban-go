@@ -144,27 +144,27 @@ func dataUp(d *DAO) {
 	db.Create(&card11)
 
 	db.Create(&User{
-		ID:   1,
-		Avatar: "./uploads/avatars/user-1.jpg",
-		Name: "Steve Smith",
+		ID:     1,
+		Avatar: "../assets/user.jpg",
+		Name:   "Steve Smith",
 	})
 	db.Create(&User{
-		ID:   2,
-		Avatar: "./uploads/avatars/user-2.jpg",
-		Name: "Aaron Long",
+		ID:     2,
+		Avatar: "../assets/user-2.jpg",
+		Name:   "Aaron Long",
 	})
 	db.Create(&User{
-		ID:   3,
-		Avatar: "./uploads/avatars/user-3.jpg",
-		Name: "Angela Allen",
+		ID:     3,
+		Avatar: "../assets/user-3.jpg",
+		Name:   "Angela Allen",
 	})
 	db.Create(&User{
-		ID:   4,
-		Avatar: "./uploads/avatars/user-4.jpg",
-		Name: "Angela Long",
+		ID:     4,
+		Avatar: "../assets/user-4.jpg",
+		Name:   "Angela Long",
 	})
 	db.Create(&User{
 		ID:   5,
-		Name: "Angela Long",
+		Name: "John Doe",
 	})
 }
