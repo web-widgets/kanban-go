@@ -10,6 +10,7 @@ func dataDown(d *DAO) {
 	d.mustExec("DELETE from rows")
 	d.mustExec("DELETE from binary_data")
 	d.mustExec("DELETE from users")
+	d.mustExec("DELETE from assigned_users")
 }
 
 func formatDate(date string) *time.Time {

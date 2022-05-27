@@ -1,7 +1,6 @@
 package data
 
 import (
-	"encoding/json"
 	"time"
 	"web-widgets/kanban-go/common"
 
@@ -40,17 +39,24 @@ type CardsDAO struct {
 
 func (m *CardsDAO) GetAll() ([]Card, error) {
 	cards := make([]Card, 0)
-	err := m.db.Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-		return m.db.Order("binary_data.id ASC")
-	}).Order("`index` asc").Find(&cards).Error
+	err := m.db.
+		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+			return m.db.Order("binary_data.id ASC")
+		}).
+		Preload("AssignedUsers").
+		Order("`index` asc").
+		Find(&cards).Error
 	return cards, err
 }
 
 func (m *CardsDAO) GetOne(id int) (*Card, error) {
 	card := Card{}
-	err := m.db.Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-		return m.db.Order("binary_data.id ASC")
-	}).First(&card, id).Error
+	err := m.db.
+		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+			return m.db.Order("binary_data.id ASC")
+		}).
+		Preload("AssignedUsers").
+		First(&card, id).Error
 
 	return &card, err
 }
@@ -77,8 +83,20 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 	c.Progress = int(info.Progress)
 	c.Color = info.Color
 	c.AttachedData = nil
-	bytesUsers, _ := json.Marshal(upd.Card.Users)
-	c.Users = string(bytesUsers)
+	c.AssignedUsers = nil
+
+	err = m.db.Model(&c).Association("AssignedUsers").Clear()
+	if err != nil {
+		return err
+	}
+	if len(info.Users) > 0 {
+		users := make([]User, 0)
+		err := m.db.Where("id IN(?)", info.Users).Find(&users).Error
+		if err != nil {
+			return err
+		}
+		c.AssignedUsers = users
+	}
 
 	err = m.db.Save(&c).Error
 	if err == nil {
