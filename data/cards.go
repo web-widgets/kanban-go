@@ -46,6 +46,10 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 		Preload("AssignedUsers").
 		Order("`index` asc").
 		Find(&cards).Error
+
+	for i, c := range cards {
+		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
+	}
 	return cards, err
 }
 
@@ -221,4 +225,12 @@ func (m *CardsDAO) Move(id int, upd CardPosUpdate) error {
 	err = m.db.Save(&c).Error
 
 	return err
+}
+
+func getIDs(users []User) []int {
+	ids := make([]int, 0)
+	for _, card := range users {
+		ids = append(ids, card.ID)
+	}
+	return ids
 }
