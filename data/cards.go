@@ -228,9 +228,9 @@ func (m *CardsDAO) Move(id int, upd CardPosUpdate) error {
 }
 
 func getIDs(users []User) []int {
-	ids := make([]int, 0)
-	for _, card := range users {
-		ids = append(ids, card.ID)
+	ids := make([]int, len(users))
+	for i, card := range users {
+		ids[i] = card.ID
 	}
 	return ids
 }
