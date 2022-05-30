@@ -24,8 +24,9 @@ type Card struct {
 	Color        string        `json:"color"`
 	Priority     int           `json:"priority"`
 
-	Index         int    `json:"-"`
-	AssignedUsers []User `gorm:"many2many:assigned_users;" json:"users,omitempty"`
+	Index            int    `json:"-"`
+	AssignedUsers    []User `gorm:"many2many:assigned_users;" json:"-"`
+	AssignedUsersIDs []int  `gorm:"-" json:"users"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`

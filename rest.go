@@ -302,6 +302,15 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
+	r.Get("/users", func(w http.ResponseWriter, r *http.Request) {
+		data, err := dao.Users.GetAll()
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, data)
+		}
+	})
+
 	// DEMO ONLY, imitate login
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 		uid, _ := strconv.Atoi(r.URL.Query().Get("id"))

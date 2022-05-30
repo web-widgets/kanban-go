@@ -9,6 +9,8 @@ func dataDown(d *DAO) {
 	d.mustExec("DELETE from columns")
 	d.mustExec("DELETE from rows")
 	d.mustExec("DELETE from binary_data")
+	d.mustExec("DELETE from users")
+	d.mustExec("DELETE from assigned_users")
 }
 
 func formatDate(date string) *time.Time {
@@ -141,4 +143,29 @@ func dataUp(d *DAO) {
 		StartDate: formatDate("2018-01-01T00:00:00Z"),
 	}
 	db.Create(&card11)
+
+	db.Create(&User{
+		ID:     1,
+		Avatar: "../assets/user.jpg",
+		Name:   "Steve Smith",
+	})
+	db.Create(&User{
+		ID:     2,
+		Avatar: "../assets/user-2.jpg",
+		Name:   "Aaron Long",
+	})
+	db.Create(&User{
+		ID:     3,
+		Avatar: "../assets/user-3.jpg",
+		Name:   "Angela Allen",
+	})
+	db.Create(&User{
+		ID:     4,
+		Avatar: "../assets/user-4.jpg",
+		Name:   "Angela Long",
+	})
+	db.Create(&User{
+		ID:   5,
+		Name: "John Doe",
+	})
 }
