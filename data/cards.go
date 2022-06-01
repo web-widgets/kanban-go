@@ -66,7 +66,10 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 }
 
 func (m *CardsDAO) Delete(id int) error {
-	err := m.db.Delete(&Card{}, id).Error
+	err := m.db.Exec("DELETE FROM assigned_users WHERE card_id = ?", id).Error
+	if err == nil {
+		err = m.db.Delete(&Card{}, id).Error
+	}
 	return err
 }
 
