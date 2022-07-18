@@ -54,6 +54,7 @@ func NewDAO(config DBConfig, url, drive string) *DAO {
 	db.AutoMigrate(&Column{})
 	db.AutoMigrate(&Row{})
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&AssignedUser{})
 	db.AutoMigrate(&Status{})
 	db.AutoMigrate(&BinaryData{})
 

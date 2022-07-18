@@ -67,7 +67,7 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 }
 
 func (m *CardsDAO) Delete(id int) error {
-	err := m.db.Exec("DELETE FROM assigned_users WHERE card_id = ?", id).Error
+	err := m.db.Where("card_id = ?", id).Delete(&AssignedUser{}).Error
 	if err == nil {
 		err = m.db.Delete(&Card{}, id).Error
 	}
@@ -137,9 +137,12 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
-	if uid, ok := info.Card.ID.(float64); ok {
-		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", uid).Update("deleted_at", nil).Error
-		return int(uid), err
+	if id, ok := info.Card.ID.(float64); ok {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", id).Update("deleted_at", nil).Error
+		if err == nil {
+			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", id).Update("deleted_at", nil).Error
+		}
+		return int(id), err
 	}
 
 	column := int(info.ColumnID)

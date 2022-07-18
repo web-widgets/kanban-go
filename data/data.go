@@ -37,11 +37,18 @@ type Card struct {
 }
 
 type User struct {
-	ID     int    `json:"id"`
-	Name   string `json:"label"`
-	Avatar string `json:"avatar"`
+	ID        int            `json:"id"`
+	Name      string         `json:"label"`
+	Avatar    string         `json:"avatar"`
+	DeletedAt gorm.DeletedAt `json:"-"`
 
 	AssignedCards []Card `gorm:"many2many:assigned_users;" json:"-"`
+}
+
+type AssignedUser struct {
+	UserID    int `gorm:"primaryKey"`
+	CardID    int `gorm:"primaryKey"`
+	DeletedAt gorm.DeletedAt
 }
 
 type Status struct {
