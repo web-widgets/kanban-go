@@ -2,6 +2,8 @@ package data
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Board struct {
@@ -27,6 +29,8 @@ type Card struct {
 	Index            int    `json:"-"`
 	AssignedUsers    []User `gorm:"many2many:assigned_users;" json:"-"`
 	AssignedUsersIDs []int  `gorm:"-" json:"users"`
+
+	DeletedAt gorm.DeletedAt `json:"-"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
@@ -55,6 +59,8 @@ type Column struct {
 
 	Index int `json:"-"`
 
+	DeletedAt gorm.DeletedAt `json:"-"`
+
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
 }
@@ -65,6 +71,8 @@ type Row struct {
 	Collapsed bool   `json:"collapsed"`
 
 	Index int `json:"-"`
+
+	DeletedAt gorm.DeletedAt `json:"-"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`

@@ -10,6 +10,7 @@ import (
 type CardUpdate struct {
 	CardPosUpdate
 	Card struct {
+		ID           interface{}     `json:"id"`
 		Name         string          `json:"label"`
 		Details      string          `json:"description"`
 		Priority     common.FuzzyInt `json:"priority"`
@@ -136,6 +137,11 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
+	if uid, ok := info.Card.ID.(float64); ok {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", uid).Update("deleted_at", nil).Error
+		return int(uid), err
+	}
+
 	column := int(info.ColumnID)
 	row := int(info.RowID)
 

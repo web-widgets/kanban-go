@@ -4,8 +4,9 @@ import "gorm.io/gorm"
 
 type RowUpdate struct {
 	Row struct {
-		Name      string `json:"label"`
-		Collapsed bool   `json:"collapsed"`
+		ID        interface{} `json:"id"`
+		Name      string      `json:"label"`
+		Collapsed bool        `json:"collapsed"`
 	} `json:"row"`
 }
 
@@ -55,6 +56,11 @@ func (m *RowsDAO) Update(id int, info RowUpdate) error {
 }
 
 func (m *RowsDAO) Add(info RowUpdate) (int, error) {
+	if id, ok := info.Row.ID.(float64); ok {
+		err := m.db.Unscoped().Model(&Row{}).Where("id = ?", id).Update("deleted_at", nil).Error
+		return int(id), err
+	}
+
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex()
 	if err != nil {
