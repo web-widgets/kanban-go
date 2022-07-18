@@ -24,7 +24,7 @@ type Card struct {
 	Progress     int           `json:"progress"`
 	AttachedData []*BinaryData `json:"attached"`
 	Color        string        `json:"color"`
-	Priority     int           `json:"priority"`
+	Priority     int           `json:"priority,omitempty"`
 
 	Index            int    `json:"-"`
 	AssignedUsers    []User `gorm:"many2many:assigned_users;" json:"-"`
