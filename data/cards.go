@@ -63,6 +63,8 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 		Preload("AssignedUsers").
 		First(&card, id).Error
 
+	card.AssignedUsersIDs = getIDs(card.AssignedUsers)
+
 	return &card, err
 }
 
