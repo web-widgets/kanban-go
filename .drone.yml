@@ -9,6 +9,7 @@ steps:
     GOPROXY: https://goproxy.webix.io
   commands:
     - go build .
+    - echo "${DRONE_BRANCH}" | sed 's#/#-#g' > .tags
 
 - name: docker
   image: plugins/docker
@@ -17,7 +18,6 @@ steps:
     password:
       from_secret: docker_password
     repo: registry.webix.io/${DRONE_REPO_NAME}
-    tags: "${DRONE_BRANCH}"
     registry: registry.webix.io
 
 - name: deploy
