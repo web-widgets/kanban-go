@@ -8,8 +8,9 @@ import (
 
 type ColumnUpdate struct {
 	Column struct {
-		Name      string `json:"label"`
-		Collapsed bool   `json:"collapsed"`
+		ID        interface{} `json:"id"`
+		Name      string      `json:"label"`
+		Collapsed bool        `json:"collapsed"`
 	} `json:"column"`
 }
 
@@ -59,6 +60,11 @@ func (m *ColumnsDAO) Update(id int, info ColumnUpdate) error {
 }
 
 func (m *ColumnsDAO) Add(info ColumnUpdate) (int, error) {
+	if id, ok := info.Column.ID.(float64); ok {
+		err := m.db.Unscoped().Model(&Column{}).Where("id = ?", id).Update("deleted_at", nil).Error
+		return int(id), err
+	}
+
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex()
 	if err != nil {

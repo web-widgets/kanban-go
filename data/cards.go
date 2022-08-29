@@ -10,6 +10,7 @@ import (
 type CardUpdate struct {
 	CardPosUpdate
 	Card struct {
+		ID           interface{}     `json:"id"`
 		Name         string          `json:"label"`
 		Details      string          `json:"description"`
 		Priority     common.FuzzyInt `json:"priority"`
@@ -62,11 +63,16 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 		Preload("AssignedUsers").
 		First(&card, id).Error
 
+	card.AssignedUsersIDs = getIDs(card.AssignedUsers)
+
 	return &card, err
 }
 
 func (m *CardsDAO) Delete(id int) error {
-	err := m.db.Delete(&Card{}, id).Error
+	err := m.db.Where("card_id = ?", id).Delete(&AssignedUser{}).Error
+	if err == nil {
+		err = m.db.Delete(&Card{}, id).Error
+	}
 	return err
 }
 
@@ -133,6 +139,14 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
+	if id, ok := info.Card.ID.(float64); ok {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", id).Update("deleted_at", nil).Error
+		if err == nil {
+			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", id).Update("deleted_at", nil).Error
+		}
+		return int(id), err
+	}
+
 	column := int(info.ColumnID)
 	row := int(info.RowID)
 
