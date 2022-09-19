@@ -8,9 +8,8 @@ import (
 )
 
 type CardUpdate struct {
-	CardPosUpdate
+	UPDBase
 	Card struct {
-		ID           interface{}     `json:"id"`
 		Name         string          `json:"label"`
 		Details      string          `json:"description"`
 		Priority     common.FuzzyInt `json:"priority"`
@@ -21,13 +20,18 @@ type CardUpdate struct {
 		OwnerID      common.FuzzyInt `json:"owner"`
 		AttachedData []*BinaryData   `json:"attached"`
 		Users        []int           `json:"users"`
+		RowID        common.FuzzyInt `json:"row"`
+		ColumnID     common.FuzzyInt `json:"column"`
 	} `json:"card"`
 }
 
 type CardPosUpdate struct {
+	UPDBase
 	Before   common.FuzzyInt `json:"before"`
 	ColumnID common.FuzzyInt `json:"columnId"`
 	RowID    common.FuzzyInt `json:"rowId"`
+
+	Batch []CardPosUpdate `json:"batch"`
 }
 
 func NewCardsDAO(db *gorm.DB) *CardsDAO {
@@ -139,16 +143,19 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
-	if id, ok := info.Card.ID.(float64); ok {
-		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	if info.RestoreID != 0 {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", info.RestoreID).Update("deleted_at", nil).Error
 		if err == nil {
-			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", id).Update("deleted_at", nil).Error
+			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", info.RestoreID).Update("deleted_at", nil).Error
 		}
-		return int(id), err
+		return int(info.RestoreID), err
 	}
 
-	column := int(info.ColumnID)
-	row := int(info.RowID)
+	column := int(info.Card.ColumnID)
+	row := int(info.Card.RowID)
+	if row == 0 {
+		row = 1
+	}
 
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex(column, row)
