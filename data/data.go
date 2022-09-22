@@ -7,7 +7,7 @@ import (
 )
 
 type UPDBase struct {
-	RestoreID int `json:"restoreID"`
+	RestoreID int `json:"restore"`
 }
 
 type Board struct {

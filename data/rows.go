@@ -5,8 +5,8 @@ import "gorm.io/gorm"
 type RowUpdate struct {
 	UPDBase
 	Row struct {
-		Name      string      `json:"label"`
-		Collapsed bool        `json:"collapsed"`
+		Name      string `json:"label"`
+		Collapsed bool   `json:"collapsed"`
 	} `json:"row"`
 }
 

@@ -30,8 +30,6 @@ type CardPosUpdate struct {
 	Before   common.FuzzyInt `json:"before"`
 	ColumnID common.FuzzyInt `json:"columnId"`
 	RowID    common.FuzzyInt `json:"rowId"`
-
-	Batch []CardPosUpdate `json:"batch"`
 }
 
 func NewCardsDAO(db *gorm.DB) *CardsDAO {
@@ -153,9 +151,6 @@ func (m *CardsDAO) Add(info CardUpdate) (int, error) {
 
 	column := int(info.Card.ColumnID)
 	row := int(info.Card.RowID)
-	if row == 0 {
-		row = 1
-	}
 
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex(column, row)

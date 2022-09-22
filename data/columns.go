@@ -9,8 +9,8 @@ import (
 type ColumnUpdate struct {
 	UPDBase
 	Column struct {
-		Name      string      `json:"label"`
-		Collapsed bool        `json:"collapsed"`
+		Name      string `json:"label"`
+		Collapsed bool   `json:"collapsed"`
 	} `json:"column"`
 }
 
