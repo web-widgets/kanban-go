@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UPDBase struct {
+type MetaInfo struct {
 	RestoreID int `json:"restore"`
 }
 

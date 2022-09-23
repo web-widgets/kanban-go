@@ -7,7 +7,7 @@ import (
 )
 
 type ColumnUpdate struct {
-	UPDBase
+	Meta   MetaInfo `json:"meta"`
 	Column struct {
 		Name      string `json:"label"`
 		Collapsed bool   `json:"collapsed"`
@@ -15,7 +15,7 @@ type ColumnUpdate struct {
 }
 
 type ColumnMove struct {
-	UPDBase
+	Meta   MetaInfo        `json:"meta"`
 	Before common.FuzzyInt `json:"before"`
 }
 
@@ -61,9 +61,9 @@ func (m *ColumnsDAO) Update(id int, info ColumnUpdate) error {
 }
 
 func (m *ColumnsDAO) Add(info ColumnUpdate) (int, error) {
-	if info.RestoreID != 0 {
-		err := m.db.Unscoped().Model(&Column{}).Where("id = ?", info.RestoreID).Update("deleted_at", nil).Error
-		return int(info.RestoreID), err
+	if info.Meta.RestoreID != 0 {
+		err := m.db.Unscoped().Model(&Column{}).Where("id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
+		return int(info.Meta.RestoreID), err
 	}
 
 	// get index after last item o`n the stage

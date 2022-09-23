@@ -8,7 +8,7 @@ import (
 )
 
 type CardUpdate struct {
-	UPDBase
+	Meta MetaInfo `json:"$meta"`
 	Card struct {
 		Name         string          `json:"label"`
 		Details      string          `json:"description"`
@@ -26,7 +26,7 @@ type CardUpdate struct {
 }
 
 type CardPosUpdate struct {
-	UPDBase
+	Meta     MetaInfo        `json:"$meta"`
 	Before   common.FuzzyInt `json:"before"`
 	ColumnID common.FuzzyInt `json:"columnId"`
 	RowID    common.FuzzyInt `json:"rowId"`
@@ -141,12 +141,12 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
-	if info.RestoreID != 0 {
-		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", info.RestoreID).Update("deleted_at", nil).Error
+	if info.Meta.RestoreID != 0 {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
 		if err == nil {
-			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", info.RestoreID).Update("deleted_at", nil).Error
+			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
 		}
-		return int(info.RestoreID), err
+		return int(info.Meta.RestoreID), err
 	}
 
 	column := int(info.Card.ColumnID)

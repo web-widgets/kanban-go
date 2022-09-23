@@ -3,16 +3,16 @@ package data
 import "gorm.io/gorm"
 
 type RowUpdate struct {
-	UPDBase
-	Row struct {
+	Meta MetaInfo `json:"meta"`
+	Row  struct {
 		Name      string `json:"label"`
 		Collapsed bool   `json:"collapsed"`
 	} `json:"row"`
 }
 
 type RowMove struct {
-	UPDBase
-	Before int `json:"before"`
+	Meta   MetaInfo `json:"meta"`
+	Before int      `json:"before"`
 }
 
 func NewRowsDAO(db *gorm.DB) *RowsDAO {
@@ -57,9 +57,9 @@ func (m *RowsDAO) Update(id int, info RowUpdate) error {
 }
 
 func (m *RowsDAO) Add(info RowUpdate) (int, error) {
-	if info.RestoreID != 0 {
-		err := m.db.Unscoped().Model(&Row{}).Where("id = ?", info.RestoreID).Update("deleted_at", nil).Error
-		return int(info.RestoreID), err
+	if info.Meta.RestoreID != 0 {
+		err := m.db.Unscoped().Model(&Row{}).Where("id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
+		return int(info.Meta.RestoreID), err
 	}
 
 	// get index after last item o`n the stage
