@@ -56,6 +56,22 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 	return cards, err
 }
 
+func (m *CardsDAO) GetColumn(id int) ([]Card, error) {
+	cards := make([]Card, 0)
+	err := m.db.
+		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+			return m.db.Order("binary_data.id ASC")
+		}).
+		Preload("AssignedUsers").
+		Order("`index` asc").
+		Find(&cards, "column_id = ?", id).Error
+
+	for i, c := range cards {
+		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
+	}
+	return cards, err
+}
+
 func (m *CardsDAO) GetOne(id int) (*Card, error) {
 	card := Card{}
 	err := m.db.
