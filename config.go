@@ -12,4 +12,5 @@ type AppConfig struct {
 	Server     ConfigServer
 	DB         data.DBConfig
 	BinaryData string
+	Votes      bool
 }

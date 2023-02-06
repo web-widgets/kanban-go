@@ -11,6 +11,7 @@ func dataDown(d *DAO) {
 	d.mustExec("DELETE from binary_data")
 	d.mustExec("DELETE from users")
 	d.mustExec("DELETE from assigned_users")
+	d.mustExec("DELETE from votes")
 }
 
 func formatDate(date string) *time.Time {
@@ -168,4 +169,25 @@ func dataUp(d *DAO) {
 		ID:   5,
 		Name: "John Doe",
 	})
+
+	if WithVotes {
+		db.Create([]Votes{
+			{
+				CardID: 1,
+				UserID: 2,
+			},
+			{
+				CardID: 1,
+				UserID: 4,
+			},
+			{
+				CardID: 5,
+				UserID: 1,
+			},
+			{
+				CardID: 8,
+				UserID: 3,
+			},
+		})
+	}
 }

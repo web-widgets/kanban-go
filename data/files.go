@@ -3,7 +3,6 @@ package data
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -34,7 +33,7 @@ func (m *FilesDAO) FromRequest(r *http.Request, field string) (BinaryData, error
 
 	defer file.Close()
 
-	tempFile, err := ioutil.TempFile(m.storePath, "u*")
+	tempFile, err := os.CreateTemp(m.storePath, "u*")
 	if err != nil {
 		return rec, err
 	}

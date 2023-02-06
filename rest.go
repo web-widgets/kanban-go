@@ -311,6 +311,40 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
+	r.Post("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Votes {
+			format.Text(w, 500, "feature is disabled")
+			return
+		}
+
+		cid := NumberParam(r, "id")
+		uid := getUID(r)
+		err := dao.Cards.SetVote(cid, uid)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{uid})
+		}
+	})
+
+	r.Delete("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Votes {
+			format.Text(w, 500, "feature is disabled")
+			return
+		}
+
+		cid := NumberParam(r, "id")
+		uid := getUID(r)
+		err := dao.Cards.RemoveVote(cid, uid)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{uid})
+		}
+	})
+
 	// DEMO ONLY, imitate login
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 		uid, _ := strconv.Atoi(r.URL.Query().Get("id"))
