@@ -11,6 +11,6 @@ type ConfigServer struct {
 type AppConfig struct {
 	Server     ConfigServer
 	DB         data.DBConfig
+	Features   data.Features
 	BinaryData string
-	Votes      bool
 }

@@ -36,8 +36,8 @@ type Card struct {
 
 	DeletedAt gorm.DeletedAt `json:"-"`
 
-	Votes     []User `gorm:"many2many:votes;" json:"-"`
-	VotesUIDs []int  `gorm:"-" json:"vote"`
+	Votes         []User `gorm:"many2many:votes;" json:"-"`
+	VotesUsersIDs []int  `gorm:"-" json:"votes,omitempty"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
@@ -106,7 +106,7 @@ type BinaryData struct {
 	Board   *Board `json:"-"`
 }
 
-type Votes struct {
-	CardID   int       `gorm:"primaryKey"`
-	UserID   int       `gorm:"primaryKey"`
+type Vote struct {
+	CardID int `gorm:"primaryKey"`
+	UserID int `gorm:"primaryKey"`
 }

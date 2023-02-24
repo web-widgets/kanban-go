@@ -170,8 +170,8 @@ func dataUp(d *DAO) {
 		Name: "John Doe",
 	})
 
-	if WithVotes {
-		db.Create([]Votes{
+	if features.WithVotes {
+		db.Create([]Vote{
 			{
 				CardID: 1,
 				UserID: 2,

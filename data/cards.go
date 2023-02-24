@@ -52,14 +52,14 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 		Order("`index` asc").
 		Find(&cards).Error
 
-	if WithVotes {
+	if features.WithVotes {
 		m.db.Preload("Votes").Find(&cards)
 	}
 
 	for i, c := range cards {
 		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
-		if WithVotes {
-			cards[i].VotesUIDs = getIDs(c.Votes)
+		if features.WithVotes {
+			cards[i].VotesUsersIDs = getIDs(c.Votes)
 		}
 	}
 	return cards, err
@@ -90,9 +90,9 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 		Preload("AssignedUsers").
 		First(&card, id).Error
 
-	if WithVotes {
+	if features.WithVotes {
 		m.db.Preload("Votes").Find(&card)
-		card.VotesUIDs = getIDs(card.Votes)
+		card.VotesUsersIDs = getIDs(card.Votes)
 	}
 
 	card.AssignedUsersIDs = getIDs(card.AssignedUsers)
@@ -106,7 +106,9 @@ func (m *CardsDAO) Delete(id int) error {
 		return err
 	}
 
-	err = m.db.Where("card_id = ?", id).Delete(&Votes{}).Error
+	if features.WithVotes {
+		err = m.db.Where("card_id = ?", id).Delete(&Vote{}).Error
+	}
 
 	if err == nil {
 		err = m.db.Delete(&Card{}, id).Error
@@ -279,16 +281,16 @@ func (m *CardsDAO) Move(id int, upd CardPosUpdate) error {
 	return err
 }
 
-func (m *CardsDAO) SetVote(cid, uid int) error {
+func (m *CardsDAO) SetVote(cid, user int) error {
 	if cid == 0 {
 		return fmt.Errorf("card ID not defined")
 	}
-	if uid == 0 {
+	if user == 0 {
 		return fmt.Errorf("user ID not defined")
 	}
 
-	vote := Votes{}
-	err := m.db.Where("card_id = ? AND user_id = ?", cid, uid).Find(&vote).Error
+	vote := Vote{}
+	err := m.db.Where("card_id = ? AND user_id = ?", cid, user).Find(&vote).Error
 	if err != nil {
 		return err
 	}
@@ -298,9 +300,9 @@ func (m *CardsDAO) SetVote(cid, uid int) error {
 		return nil
 	}
 
-	vote = Votes{
+	vote = Vote{
 		CardID: cid,
-		UserID: uid,
+		UserID: user,
 	}
 
 	err = m.db.Create(&vote).Error
@@ -308,15 +310,15 @@ func (m *CardsDAO) SetVote(cid, uid int) error {
 	return err
 }
 
-func (m *CardsDAO) RemoveVote(cid, uid int) error {
+func (m *CardsDAO) RemoveVote(cid, user int) error {
 	if cid == 0 {
 		return fmt.Errorf("card ID not defined")
 	}
-	if uid == 0 {
+	if user == 0 {
 		return fmt.Errorf("user ID not defined")
 	}
 
-	return m.db.Where("card_id = ? AND user_id = ?", cid, uid).Delete(&Votes{}).Error
+	return m.db.Where("card_id = ? AND user_id = ?", cid, user).Delete(&Vote{}).Error
 }
 
 func getIDs(users []User) []int {

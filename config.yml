@@ -7,4 +7,5 @@ server:
   cors:
     - "*"
 binarydata: ./uploads
-votes: true
+features: 
+  withVotes: true

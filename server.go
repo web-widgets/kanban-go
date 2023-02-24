@@ -22,7 +22,7 @@ var Config AppConfig
 func main() {
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
 
-	dao := data.NewDAO(Config.DB, Config.Server.URL, Config.BinaryData, Config.Votes)
+	dao := data.NewDAO(Config.DB, Config.Server.URL, Config.BinaryData, Config.Features)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
