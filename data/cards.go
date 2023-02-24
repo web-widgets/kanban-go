@@ -9,9 +9,8 @@ import (
 )
 
 type CardUpdate struct {
-	CardPosUpdate
+	Meta MetaInfo `json:"$meta"`
 	Card struct {
-		ID           interface{}     `json:"id"`
 		Name         string          `json:"label"`
 		Details      string          `json:"description"`
 		Priority     common.FuzzyInt `json:"priority"`
@@ -23,10 +22,13 @@ type CardUpdate struct {
 		AttachedData []*BinaryData   `json:"attached"`
 		Users        []int           `json:"users"`
 		Votes        []int           `json:"votes"`
+		RowID        common.FuzzyInt `json:"row"`
+		ColumnID     common.FuzzyInt `json:"column"`
 	} `json:"card"`
 }
 
 type CardPosUpdate struct {
+	Meta     MetaInfo        `json:"$meta"`
 	Before   common.FuzzyInt `json:"before"`
 	ColumnID common.FuzzyInt `json:"columnId"`
 	RowID    common.FuzzyInt `json:"rowId"`
@@ -59,6 +61,22 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 		if WithVotes {
 			cards[i].VotesUIDs = getIDs(c.Votes)
 		}
+	}
+	return cards, err
+}
+
+func (m *CardsDAO) GetColumn(id int) ([]Card, error) {
+	cards := make([]Card, 0)
+	err := m.db.
+		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
+			return m.db.Order("binary_data.id ASC")
+		}).
+		Preload("AssignedUsers").
+		Order("`index` asc").
+		Find(&cards, "column_id = ?", id).Error
+
+	for i, c := range cards {
+		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
 	}
 	return cards, err
 }
@@ -159,16 +177,16 @@ func (m *CardsDAO) Update(id int, upd CardUpdate) error {
 }
 
 func (m *CardsDAO) Add(info CardUpdate) (int, error) {
-	if id, ok := info.Card.ID.(float64); ok {
-		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", id).Update("deleted_at", nil).Error
+	if info.Meta.RestoreID != 0 {
+		err := m.db.Unscoped().Model(&Card{}).Where("id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
 		if err == nil {
-			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", id).Update("deleted_at", nil).Error
+			err = m.db.Unscoped().Model(&AssignedUser{}).Where("card_id = ?", info.Meta.RestoreID).Update("deleted_at", nil).Error
 		}
-		return int(id), err
+		return int(info.Meta.RestoreID), err
 	}
 
-	column := int(info.ColumnID)
-	row := int(info.RowID)
+	column := int(info.Card.ColumnID)
+	row := int(info.Card.RowID)
 
 	// get index after last item o`n the stage
 	toIndex, err := m.getMaxIndex(column, row)

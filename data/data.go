@@ -6,6 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type MetaInfo struct {
+	RestoreID int `json:"restore"`
+}
+
 type Board struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`

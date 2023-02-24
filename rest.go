@@ -23,6 +23,17 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
+	r.Get("/cards/column/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var id int
+		id = NumberParam(r, "id")
+		data, err := dao.Cards.GetColumn(id)
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, data)
+		}
+	})
+
 	r.Post("/cards", func(w http.ResponseWriter, r *http.Request) {
 		var id int
 		info, err := ParseFormCard(w, r)
