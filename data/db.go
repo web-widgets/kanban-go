@@ -9,6 +9,7 @@ import (
 )
 
 var Debug = 1
+var features *Features
 
 func logError(e error) {
 	if e != nil && Debug > 0 {
@@ -19,6 +20,10 @@ func logError(e error) {
 type DBConfig struct {
 	Path         string
 	ResetOnStart bool
+}
+
+type Features struct {
+	WithVotes bool `yaml:"withVotes"`
 }
 
 type DAO struct {
@@ -42,13 +47,15 @@ func (d *DAO) mustExec(sql string) {
 	}
 }
 
-func NewDAO(config DBConfig, url, drive string) *DAO {
+func NewDAO(config DBConfig, url, drive string, featureCfg Features) *DAO {
 	db, err := gorm.Open(sqlite.Open(config.Path), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		panic("failed to connect database")
 	}
+
+	features = &featureCfg
 
 	db.AutoMigrate(&Card{})
 	db.AutoMigrate(&Column{})
@@ -57,6 +64,7 @@ func NewDAO(config DBConfig, url, drive string) *DAO {
 	db.AutoMigrate(&AssignedUser{})
 	db.AutoMigrate(&Status{})
 	db.AutoMigrate(&BinaryData{})
+	db.AutoMigrate(&Vote{})
 
 	dao := &DAO{
 		db:      db,

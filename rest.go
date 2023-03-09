@@ -322,11 +322,45 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
+	r.Post("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithVotes {
+			format.Text(w, 500, "feature is disabled")
+			return
+		}
+
+		cid := NumberParam(r, "id")
+		userId := getUserID(r)
+		err := dao.Cards.SetVote(cid, userId)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{userId})
+		}
+	})
+
+	r.Delete("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithVotes {
+			format.Text(w, 500, "feature is disabled")
+			return
+		}
+
+		cid := NumberParam(r, "id")
+		userId := getUserID(r)
+		err := dao.Cards.RemoveVote(cid, userId)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{userId})
+		}
+	})
+
 	// DEMO ONLY, imitate login
 	r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
-		uid, _ := strconv.Atoi(r.URL.Query().Get("id"))
+		userId, _ := strconv.Atoi(r.URL.Query().Get("id"))
 		device := newDeviceID()
-		token, err := createUserToken(uid, device)
+		token, err := createUserToken(userId, device)
 		if err != nil {
 			log.Println("[token]", err.Error())
 		}

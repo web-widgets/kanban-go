@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"time"
 	"web-widgets/kanban-go/common"
 
@@ -20,6 +21,7 @@ type CardUpdate struct {
 		OwnerID      common.FuzzyInt `json:"owner"`
 		AttachedData []*BinaryData   `json:"attached"`
 		Users        []int           `json:"users"`
+		Votes        []int           `json:"votes"`
 		RowID        common.FuzzyInt `json:"row"`
 		ColumnID     common.FuzzyInt `json:"column"`
 	} `json:"card"`
@@ -50,8 +52,15 @@ func (m *CardsDAO) GetAll() ([]Card, error) {
 		Order("`index` asc").
 		Find(&cards).Error
 
+	if features.WithVotes {
+		m.db.Preload("Votes").Find(&cards)
+	}
+
 	for i, c := range cards {
 		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
+		if features.WithVotes {
+			cards[i].VotesUsersIDs = getIDs(c.Votes)
+		}
 	}
 	return cards, err
 }
@@ -76,10 +85,15 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 	card := Card{}
 	err := m.db.
 		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-			return m.db.Order("binary_data.id ASC")
+			return db.Order("binary_data.id ASC")
 		}).
 		Preload("AssignedUsers").
 		First(&card, id).Error
+
+	if features.WithVotes {
+		m.db.Preload("Votes").Find(&card)
+		card.VotesUsersIDs = getIDs(card.Votes)
+	}
 
 	card.AssignedUsersIDs = getIDs(card.AssignedUsers)
 
@@ -88,6 +102,14 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 
 func (m *CardsDAO) Delete(id int) error {
 	err := m.db.Where("card_id = ?", id).Delete(&AssignedUser{}).Error
+	if err != nil {
+		return err
+	}
+
+	if features.WithVotes {
+		err = m.db.Where("card_id = ?", id).Delete(&Vote{}).Error
+	}
+
 	if err == nil {
 		err = m.db.Delete(&Card{}, id).Error
 	}
@@ -257,6 +279,46 @@ func (m *CardsDAO) Move(id int, upd CardPosUpdate) error {
 	err = m.db.Save(&c).Error
 
 	return err
+}
+
+func (m *CardsDAO) SetVote(cid, user int) error {
+	if cid == 0 {
+		return fmt.Errorf("card ID not defined")
+	}
+	if user == 0 {
+		return fmt.Errorf("user ID not defined")
+	}
+
+	vote := Vote{}
+	err := m.db.Where("card_id = ? AND user_id = ?", cid, user).Find(&vote).Error
+	if err != nil {
+		return err
+	}
+
+	if vote.CardID != 0 && vote.UserID != 0 {
+		// vote already exists
+		return nil
+	}
+
+	vote = Vote{
+		CardID: cid,
+		UserID: user,
+	}
+
+	err = m.db.Create(&vote).Error
+
+	return err
+}
+
+func (m *CardsDAO) RemoveVote(cid, user int) error {
+	if cid == 0 {
+		return fmt.Errorf("card ID not defined")
+	}
+	if user == 0 {
+		return fmt.Errorf("user ID not defined")
+	}
+
+	return m.db.Where("card_id = ? AND user_id = ?", cid, user).Delete(&Vote{}).Error
 }
 
 func getIDs(users []User) []int {

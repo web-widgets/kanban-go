@@ -85,3 +85,9 @@ func geDeviceID(r *http.Request) int {
 	asInt, _ := v.(int)
 	return asInt
 }
+
+func getUserID(r *http.Request) int {
+	v := r.Context().Value("user_id")
+	asInt, _ := v.(int)
+	return asInt
+}
