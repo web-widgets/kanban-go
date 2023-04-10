@@ -38,9 +38,10 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Post("/cards", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormCard(w, r)
+		var upd data.CardUpdate
+		err := ParseForm(w, r, &upd)
 		if err == nil {
-			id, err = dao.Cards.Add(info)
+			id, err = dao.Cards.Add(upd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -58,10 +59,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/cards/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormCard(w, r)
+		var cardUpd data.CardUpdate
+		err := ParseForm(w, r, &cardUpd)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Cards.Update(id, info)
+			err = dao.Cards.Update(id, cardUpd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -79,10 +81,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/cards/{id}/move", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormMoveCard(w, r)
+		var moveInfo data.CardPosUpdate
+		err := ParseForm(w, r, &moveInfo)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Cards.Move(id, info)
+			err = dao.Cards.Move(id, moveInfo)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -95,10 +98,10 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			From: geDeviceID(r),
 			Card: &data.Card{
 				ID:       id,
-				ColumnID: int(info.ColumnID),
-				RowID:    int(info.RowID),
+				ColumnID: int(moveInfo.ColumnID),
+				RowID:    int(moveInfo.RowID),
 			},
-			Before: int(info.Before),
+			Before: int(moveInfo.Before),
 		})
 	})
 
@@ -148,9 +151,10 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Post("/columns", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormColumn(w, r)
+		var columnUpd data.ColumnUpdate
+		err := ParseForm(w, r, &columnUpd)
 		if err == nil {
-			id, err = dao.Columns.Add(info)
+			id, err = dao.Columns.Add(columnUpd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -168,10 +172,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/columns/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormColumn(w, r)
+		var columnUpd data.ColumnUpdate
+		err := ParseForm(w, r, &columnUpd)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Columns.Update(id, info)
+			err = dao.Columns.Update(id, columnUpd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -189,10 +194,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/columns/{id}/move", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormColumnMove(w, r)
+		var moveInfo data.ColumnMove
+		err := ParseForm(w, r, &moveInfo)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Columns.Move(id, int(info.Before))
+			err = dao.Columns.Move(id, int(moveInfo.Before))
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -204,7 +210,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 				Type:   "move-column",
 				From:   geDeviceID(r),
 				Column: column,
-				Before: int(info.Before),
+				Before: int(moveInfo.Before),
 			})
 		}
 	})
@@ -237,9 +243,10 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Post("/rows", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormRow(w, r)
+		var rowUpd data.RowUpdate
+		err := ParseForm(w, r, &rowUpd)
 		if err == nil {
-			id, err = dao.Rows.Add(info)
+			id, err = dao.Rows.Add(rowUpd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -257,10 +264,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/rows/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormRow(w, r)
+		var rowUpd data.RowUpdate
+		err := ParseForm(w, r, &rowUpd)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Rows.Update(id, info)
+			err = dao.Rows.Update(id, rowUpd)
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -278,10 +286,11 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Put("/rows/{id}/move", func(w http.ResponseWriter, r *http.Request) {
 		var id int
-		info, err := ParseFormRowMove(w, r)
+		var moveInfo data.RowMove
+		err := ParseForm(w, r, &moveInfo)
 		if err == nil {
 			id = NumberParam(r, "id")
-			err = dao.Rows.Move(id, int(info.Before))
+			err = dao.Rows.Move(id, int(moveInfo.Before))
 		}
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -293,7 +302,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 				Type:   "move-row",
 				From:   geDeviceID(r),
 				Row:    row,
-				Before: int(info.Before),
+				Before: int(moveInfo.Before),
 			})
 		}
 	})
