@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,6 +12,8 @@ import (
 	"github.com/go-chi/chi"
 	remote "github.com/mkozhukh/go-remote"
 )
+
+var errFeatureDisabled error = errors.New("feature disabled")
 
 func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
@@ -24,8 +27,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 	})
 
 	r.Get("/cards/column/{id}", func(w http.ResponseWriter, r *http.Request) {
-		var id int
-		id = NumberParam(r, "id")
+		id := NumberParam(r, "id")
 		data, err := dao.Cards.GetColumn(id)
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -324,7 +326,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Post("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
 		if !Config.Features.WithVotes {
-			format.Text(w, 500, "feature is disabled")
+			format.Text(w, 500, errFeatureDisabled.Error())
 			return
 		}
 
@@ -341,13 +343,77 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 	r.Delete("/cards/{id}/vote", func(w http.ResponseWriter, r *http.Request) {
 		if !Config.Features.WithVotes {
-			format.Text(w, 500, "feature is disabled")
+			format.Text(w, 500, errFeatureDisabled.Error())
 			return
 		}
 
 		cid := NumberParam(r, "id")
 		userId := getUserID(r)
 		err := dao.Cards.RemoveVote(cid, userId)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{userId})
+		}
+	})
+
+	r.Post("/comments", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithComments {
+			format.Text(w, 500, errFeatureDisabled.Error())
+			return
+		}
+
+		comment := data.CommentUpdate{}
+		err := ParseForm(w, r, &comment)
+		if err != nil {
+			format.Text(w, 500, err.Error())
+			return
+		}
+
+		userId := getUserID(r)
+		commentId, err := dao.Comments.Add(userId, comment)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{commentId})
+		}
+	})
+
+	r.Put("/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithComments {
+			format.Text(w, 500, errFeatureDisabled.Error())
+			return
+		}
+
+		commentData := data.CommentUpdate{}
+		err := ParseForm(w, r, &commentData)
+		if err != nil {
+			format.Text(w, 500, err.Error())
+			return
+		}
+
+		commentId := NumberParam(r, "id")
+		userId := getUserID(r)
+		err = dao.Comments.Update(commentId, userId, commentData)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{commentId})
+		}
+	})
+
+	r.Delete("/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithComments {
+			format.Text(w, 500, errFeatureDisabled.Error())
+			return
+		}
+
+		commentId := NumberParam(r, "id")
+		userId := getUserID(r)
+		err := dao.Comments.Delete(commentId, userId)
 
 		if err != nil {
 			format.Text(w, 500, err.Error())

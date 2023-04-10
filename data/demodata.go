@@ -12,6 +12,7 @@ func dataDown(d *DAO) {
 	d.mustExec("DELETE from users")
 	d.mustExec("DELETE from assigned_users")
 	d.mustExec("DELETE from votes")
+	d.mustExec("DELETE from comments")
 }
 
 func formatDate(date string) *time.Time {
@@ -187,6 +188,24 @@ func dataUp(d *DAO) {
 			{
 				CardID: 8,
 				UserID: 3,
+			},
+		})
+	}
+
+	if features.WithComments {
+		now := time.Now()
+		db.Create([]Comment{
+			{
+				UserID:   1,
+				CardID:   1,
+				Text:     "React and Angular are powerful front-end frameworks",
+				PostedAt: &now,
+			},
+			{
+				UserID:   2,
+				CardID:   4,
+				Text:     "There are three predefined priority types: High, Medium, Low",
+				PostedAt: &now,
 			},
 		})
 	}

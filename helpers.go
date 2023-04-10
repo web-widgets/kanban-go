@@ -80,6 +80,14 @@ func ParseFormRow(w http.ResponseWriter, r *http.Request) (data.RowUpdate, error
 	return c, err
 }
 
+func ParseForm(w http.ResponseWriter, r *http.Request, o interface{}) error {
+	body := http.MaxBytesReader(w, r.Body, 1048576)
+	dec := json.NewDecoder(body)
+	err := dec.Decode(&o)
+
+	return err
+}
+
 func geDeviceID(r *http.Request) int {
 	v := r.Context().Value("device_id")
 	asInt, _ := v.(int)
