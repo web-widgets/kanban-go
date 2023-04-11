@@ -367,30 +367,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
-	r.Post("/comments", func(w http.ResponseWriter, r *http.Request) {
-		if !Config.Features.WithComments {
-			format.Text(w, 500, errFeatureDisabled.Error())
-			return
-		}
-
-		comment := data.CommentUpdate{}
-		err := ParseForm(w, r, &comment)
-		if err != nil {
-			format.Text(w, 500, err.Error())
-			return
-		}
-
-		userId := getUserID(r)
-		commentId, err := dao.Comments.Add(userId, comment)
-
-		if err != nil {
-			format.Text(w, 500, err.Error())
-		} else {
-			format.JSON(w, 200, Response{commentId})
-		}
-	})
-
-	r.Put("/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/cards/{cardId}/comments", func(w http.ResponseWriter, r *http.Request) {
 		if !Config.Features.WithComments {
 			format.Text(w, 500, errFeatureDisabled.Error())
 			return
@@ -403,9 +380,9 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			return
 		}
 
-		commentId := NumberParam(r, "id")
+		cardId := NumberParam(r, "cardId")
 		userId := getUserID(r)
-		err = dao.Comments.Update(commentId, userId, commentData)
+		commentId, err := dao.Comments.Add(cardId, userId, commentData)
 
 		if err != nil {
 			format.Text(w, 500, err.Error())
@@ -414,15 +391,41 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		}
 	})
 
-	r.Delete("/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
+	r.Put("/cards/{cardId}/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if !Config.Features.WithComments {
 			format.Text(w, 500, errFeatureDisabled.Error())
 			return
 		}
 
+		commentData := data.CommentUpdate{}
+		err := ParseForm(w, r, &commentData)
+		if err != nil {
+			format.Text(w, 500, err.Error())
+			return
+		}
+
+		cardId := NumberParam(r, "cardId")
 		commentId := NumberParam(r, "id")
 		userId := getUserID(r)
-		err := dao.Comments.Delete(commentId, userId)
+		err = dao.Comments.Update(commentId, cardId, userId, commentData)
+
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{commentId})
+		}
+	})
+
+	r.Delete("/cards/{cardId}/comments/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if !Config.Features.WithComments {
+			format.Text(w, 500, errFeatureDisabled.Error())
+			return
+		}
+
+		cardId := NumberParam(r, "cardId")
+		commentId := NumberParam(r, "id")
+		userId := getUserID(r)
+		err := dao.Comments.Delete(commentId, cardId, userId)
 
 		if err != nil {
 			format.Text(w, 500, err.Error())
