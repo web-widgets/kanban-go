@@ -124,18 +124,27 @@ func (m *CardsDAO) GetOne(id int) (*Card, error) {
 }
 
 func (m *CardsDAO) Delete(id int) error {
-	err := m.db.Where("card_id = ?", id).Delete(&AssignedUser{}).Error
+	err := m.db.Delete(&AssignedUser{}, "card_id = ?", id).Error
 	if err != nil {
 		return err
 	}
 
 	if features.WithVotes {
-		err = m.db.Where("card_id = ?", id).Delete(&Vote{}).Error
+		err = m.db.Delete(&Vote{}, "card_id = ?", id).Error
+		if err != nil {
+			return err
+		}
 	}
 
-	if err == nil {
-		err = m.db.Delete(&Card{}, id).Error
+	if features.WithComments {
+		err = m.db.Delete(&Comment{}, "card_id = ?", id).Error
+		if err != nil {
+			return err
+		}
 	}
+
+	err = m.db.Delete(&Card{}, id).Error
+
 	return err
 }
 
