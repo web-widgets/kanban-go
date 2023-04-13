@@ -36,8 +36,10 @@ type Card struct {
 
 	DeletedAt gorm.DeletedAt `json:"-"`
 
-	Votes         []User `gorm:"many2many:votes;" json:"-"`
+	Votes         []Vote `gorm:"foreignKey:CardID" json:"-"`
 	VotesUsersIDs []int  `gorm:"-" json:"votes,omitempty"`
+
+	Comments []Comment `gorm:"foreignKey:CardID" json:"comments"`
 
 	BoardID int    `json:"-"`
 	Board   *Board `json:"-"`
@@ -50,7 +52,6 @@ type User struct {
 	DeletedAt gorm.DeletedAt `json:"-"`
 
 	AssignedCards []Card `gorm:"many2many:assigned_users;" json:"-"`
-	Votes         []Card `gorm:"many2many:votes;" json:"-"`
 }
 
 type AssignedUser struct {
@@ -109,4 +110,12 @@ type BinaryData struct {
 type Vote struct {
 	CardID int `gorm:"primaryKey"`
 	UserID int `gorm:"primaryKey"`
+}
+
+type Comment struct {
+	ID       int        `json:"id"`
+	UserID   int        `json:"userId"`
+	CardID   int        `json:"cardId"`
+	Text     string     `json:"text"`
+	PostedAt *time.Time `json:"date"`
 }

@@ -44,75 +44,107 @@ type CardsDAO struct {
 
 func (m *CardsDAO) GetAll() ([]Card, error) {
 	cards := make([]Card, 0)
-	err := m.db.
-		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-			return m.db.Order("binary_data.id ASC")
+
+	op := m.db.
+		Preload("AttachedData", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("binary_data.id ASC")
 		}).
 		Preload("AssignedUsers").
-		Order("`index` asc").
-		Find(&cards).Error
+		Order("`index` asc")
 
 	if features.WithVotes {
-		m.db.Preload("Votes").Find(&cards)
+		op.Preload("Votes")
+	}
+	if features.WithComments {
+		op.Preload("Comments")
 	}
 
+	err := op.Find(&cards).Error
+
 	for i, c := range cards {
-		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
+		cards[i].AssignedUsersIDs = getUserIDs(c.AssignedUsers)
 		if features.WithVotes {
-			cards[i].VotesUsersIDs = getIDs(c.Votes)
+			cards[i].VotesUsersIDs = getVoteUserIDs(c.Votes)
 		}
 	}
+
 	return cards, err
 }
 
 func (m *CardsDAO) GetColumn(id int) ([]Card, error) {
 	cards := make([]Card, 0)
-	err := m.db.
-		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-			return m.db.Order("binary_data.id ASC")
+
+	op := m.db.
+		Preload("AttachedData", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("binary_data.id ASC")
 		}).
 		Preload("AssignedUsers").
-		Order("`index` asc").
-		Find(&cards, "column_id = ?", id).Error
+		Order("`index` asc")
+
+	if features.WithVotes {
+		op.Preload("Votes")
+	}
+	if features.WithComments {
+		op.Preload("Comments")
+	}
+
+	err := op.Find(&cards, "column_id = ?", id).Error
 
 	for i, c := range cards {
-		cards[i].AssignedUsersIDs = getIDs(c.AssignedUsers)
+		cards[i].AssignedUsersIDs = getUserIDs(c.AssignedUsers)
+		if features.WithVotes {
+			cards[i].VotesUsersIDs = getVoteUserIDs(c.Votes)
+		}
 	}
+
 	return cards, err
 }
 
 func (m *CardsDAO) GetOne(id int) (*Card, error) {
 	card := Card{}
-	err := m.db.
-		Preload("AttachedData", func(db *gorm.DB) *gorm.DB {
-			return db.Order("binary_data.id ASC")
+	op := m.db.
+		Preload("AttachedData", func(tx *gorm.DB) *gorm.DB {
+			return tx.Order("binary_data.id ASC")
 		}).
-		Preload("AssignedUsers").
-		First(&card, id).Error
+		Preload("AssignedUsers")
 
 	if features.WithVotes {
-		m.db.Preload("Votes").Find(&card)
-		card.VotesUsersIDs = getIDs(card.Votes)
+		op.Preload("Votes")
+		card.VotesUsersIDs = getVoteUserIDs(card.Votes)
+	}
+	if features.WithComments {
+		op.Preload("Comments")
 	}
 
-	card.AssignedUsersIDs = getIDs(card.AssignedUsers)
+	err := op.First(&card, id).Error
+
+	card.AssignedUsersIDs = getUserIDs(card.AssignedUsers)
 
 	return &card, err
 }
 
 func (m *CardsDAO) Delete(id int) error {
-	err := m.db.Where("card_id = ?", id).Delete(&AssignedUser{}).Error
+	err := m.db.Delete(&AssignedUser{}, "card_id = ?", id).Error
 	if err != nil {
 		return err
 	}
 
 	if features.WithVotes {
-		err = m.db.Where("card_id = ?", id).Delete(&Vote{}).Error
+		err = m.db.Delete(&Vote{}, "card_id = ?", id).Error
+		if err != nil {
+			return err
+		}
 	}
 
-	if err == nil {
-		err = m.db.Delete(&Card{}, id).Error
+	if features.WithComments {
+		err = m.db.Delete(&Comment{}, "card_id = ?", id).Error
+		if err != nil {
+			return err
+		}
 	}
+
+	err = m.db.Delete(&Card{}, id).Error
+
 	return err
 }
 
@@ -321,10 +353,18 @@ func (m *CardsDAO) RemoveVote(cid, user int) error {
 	return m.db.Where("card_id = ? AND user_id = ?", cid, user).Delete(&Vote{}).Error
 }
 
-func getIDs(users []User) []int {
+func getUserIDs(users []User) []int {
 	ids := make([]int, len(users))
 	for i, card := range users {
 		ids[i] = card.ID
+	}
+	return ids
+}
+
+func getVoteUserIDs(votes []Vote) []int {
+	ids := make([]int, len(votes))
+	for i, v := range votes {
+		ids[i] = v.UserID
 	}
 	return ids
 }

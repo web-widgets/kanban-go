@@ -23,17 +23,19 @@ type DBConfig struct {
 }
 
 type Features struct {
-	WithVotes bool `yaml:"withVotes"`
+	WithVotes    bool `yaml:"withVotes"`
+	WithComments bool `yaml:"withComments"`
 }
 
 type DAO struct {
 	db *gorm.DB
 
-	Cards   *CardsDAO
-	Rows    *RowsDAO
-	Columns *ColumnsDAO
-	Files   *FilesDAO
-	Users   *UsersDAO
+	Cards    *CardsDAO
+	Rows     *RowsDAO
+	Columns  *ColumnsDAO
+	Files    *FilesDAO
+	Users    *UsersDAO
+	Comments *CommentsDAO
 }
 
 func (d *DAO) GetDB() *gorm.DB {
@@ -65,14 +67,16 @@ func NewDAO(config DBConfig, url, drive string, featureCfg Features) *DAO {
 	db.AutoMigrate(&Status{})
 	db.AutoMigrate(&BinaryData{})
 	db.AutoMigrate(&Vote{})
+	db.AutoMigrate(&Comment{})
 
 	dao := &DAO{
-		db:      db,
-		Cards:   NewCardsDAO(db),
-		Rows:    NewRowsDAO(db),
-		Columns: NewColumnsDAO(db),
-		Files:   NewFilesDAO(db, url, drive),
-		Users:   NewUsersDAO(db),
+		db:       db,
+		Cards:    NewCardsDAO(db),
+		Rows:     NewRowsDAO(db),
+		Columns:  NewColumnsDAO(db),
+		Files:    NewFilesDAO(db, url, drive),
+		Users:    NewUsersDAO(db),
+		Comments: NewCommentsDAO(db),
 	}
 
 	if config.ResetOnStart {
