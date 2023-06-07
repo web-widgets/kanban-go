@@ -34,6 +34,12 @@ type RowEvent struct {
 	Before int       `json:"before,omitempty"`
 }
 
+type LinkEvent struct {
+	Type string     `json:"type"`
+	From int        `json:"-"`
+	Link *data.Link `json:"link"`
+}
+
 func BuildAPI(db *data.DAO) *remote.Server {
 	if remote.MaxSocketMessageSize < 32000 {
 		remote.MaxSocketMessageSize = 32000
