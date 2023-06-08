@@ -76,6 +76,15 @@ func BuildAPI(db *data.DAO) *remote.Server {
 		return int(tm.From) != c.ConnID
 	})
 
+	api.Events.AddGuard("links", func(m *remote.Message, c *remote.Client) bool {
+		tm, ok := m.Content.(LinkEvent)
+		if !ok {
+			return false
+		}
+
+		return int(tm.From) != c.ConnID
+	})
+
 	api.Connect = func(r *http.Request) (context.Context, error) {
 		id, _ := r.Context().Value("user_id").(int)
 		if id == 0 {
