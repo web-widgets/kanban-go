@@ -94,6 +94,15 @@ type Row struct {
 	Board   *Board `json:"-"`
 }
 
+type Link struct {
+	ID       int    `json:"id"`
+	MasterID int    `json:"masterId"`
+	SlaveID  int    `json:"slaveId"`
+	Relation string `json:"relation"`
+
+	DeletedAt gorm.DeletedAt `json:"-"`
+}
+
 type BinaryData struct {
 	ID      int    `json:"id"`
 	Path    string `json:"-"`

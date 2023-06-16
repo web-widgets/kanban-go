@@ -36,6 +36,7 @@ type DAO struct {
 	Files    *FilesDAO
 	Users    *UsersDAO
 	Comments *CommentsDAO
+	Links    *LinksDAO
 }
 
 func (d *DAO) GetDB() *gorm.DB {
@@ -68,6 +69,7 @@ func NewDAO(config DBConfig, url, drive string, featureCfg Features) *DAO {
 	db.AutoMigrate(&BinaryData{})
 	db.AutoMigrate(&Vote{})
 	db.AutoMigrate(&Comment{})
+	db.AutoMigrate(&Link{})
 
 	dao := &DAO{
 		db:       db,
@@ -77,6 +79,7 @@ func NewDAO(config DBConfig, url, drive string, featureCfg Features) *DAO {
 		Files:    NewFilesDAO(db, url, drive),
 		Users:    NewUsersDAO(db),
 		Comments: NewCommentsDAO(db),
+		Links:    NewLinksDAO(db),
 	}
 
 	if config.ResetOnStart {

@@ -51,7 +51,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			card, _ := dao.Cards.GetOne(id)
 			hub.Publish("cards", api.CardEvent{
 				Type: "add-card",
-				From: geDeviceID(r),
+				From: getDeviceID(r),
 				Card: card,
 			})
 		}
@@ -73,7 +73,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			card, _ := dao.Cards.GetOne(id)
 			hub.Publish("cards", api.CardEvent{
 				Type: "update-card",
-				From: geDeviceID(r),
+				From: getDeviceID(r),
 				Card: card,
 			})
 		}
@@ -95,7 +95,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 		hub.Publish("cards", api.CardEvent{
 			Type: "move-card",
-			From: geDeviceID(r),
+			From: getDeviceID(r),
 			Card: &data.Card{
 				ID:       id,
 				ColumnID: int(moveInfo.ColumnID),
@@ -116,7 +116,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 		hub.Publish("cards", api.CardEvent{
 			Type: "delete-card",
-			From: geDeviceID(r),
+			From: getDeviceID(r),
 			Card: &data.Card{ID: id},
 		})
 	})
@@ -164,7 +164,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
 				Type:   "add-column",
-				From:   geDeviceID(r),
+				From:   getDeviceID(r),
 				Column: column,
 			})
 		}
@@ -186,7 +186,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
 				Type:   "update-column",
-				From:   geDeviceID(r),
+				From:   getDeviceID(r),
 				Column: column,
 			})
 		}
@@ -208,7 +208,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			column, _ := dao.Columns.GetOne(id)
 			hub.Publish("columns", api.ColumnEvent{
 				Type:   "move-column",
-				From:   geDeviceID(r),
+				From:   getDeviceID(r),
 				Column: column,
 				Before: int(moveInfo.Before),
 			})
@@ -226,7 +226,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			hub.Publish("columns", api.ColumnEvent{
 				Type:   "delete-column",
-				From:   geDeviceID(r),
+				From:   getDeviceID(r),
 				Column: column,
 			})
 		}
@@ -256,7 +256,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			row, _ := dao.Rows.GetOne(id)
 			hub.Publish("rows", api.RowEvent{
 				Type: "add-row",
-				From: geDeviceID(r),
+				From: getDeviceID(r),
 				Row:  row,
 			})
 		}
@@ -278,7 +278,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			row, _ := dao.Rows.GetOne(id)
 			hub.Publish("rows", api.RowEvent{
 				Type: "update-row",
-				From: geDeviceID(r),
+				From: getDeviceID(r),
 				Row:  row,
 			})
 		}
@@ -300,7 +300,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 			row, _ := dao.Rows.GetOne(id)
 			hub.Publish("rows", api.RowEvent{
 				Type:   "move-row",
-				From:   geDeviceID(r),
+				From:   getDeviceID(r),
 				Row:    row,
 				Before: int(moveInfo.Before),
 			})
@@ -318,7 +318,7 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 
 			hub.Publish("rows", api.RowEvent{
 				Type: "delete-row",
-				From: geDeviceID(r),
+				From: getDeviceID(r),
 				Row:  row,
 			})
 		}
@@ -432,6 +432,52 @@ func initRoutes(r chi.Router, dao *data.DAO, hub *remote.Hub) {
 		} else {
 			format.JSON(w, 200, Response{userId})
 		}
+	})
+
+	r.Get("/links", func(w http.ResponseWriter, r *http.Request) {
+		data, err := dao.Links.GetAll()
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, data)
+		}
+	})
+
+	r.Post("/links", func(w http.ResponseWriter, r *http.Request) {
+		var id int
+		var linkUpd data.LinkUpdate
+		err := ParseForm(w, r, &linkUpd)
+		if err == nil {
+			id, err = dao.Links.Add(linkUpd)
+		}
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{id})
+
+			link, _ := dao.Links.GetOne(id)
+			hub.Publish("links", api.LinkEvent{
+				Type: "add-link",
+				From: getDeviceID(r),
+				Link: link,
+			})
+		}
+	})
+
+	r.Delete("/links/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := NumberParam(r, "id")
+		err := dao.Links.Delete(id)
+		if err != nil {
+			format.Text(w, 500, err.Error())
+		} else {
+			format.JSON(w, 200, Response{})
+		}
+
+		hub.Publish("links", api.LinkEvent{
+			Type: "delete-link",
+			From: getDeviceID(r),
+			Link: &data.Link{ID: id},
+		})
 	})
 
 	// DEMO ONLY, imitate login
