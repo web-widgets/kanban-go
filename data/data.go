@@ -100,7 +100,7 @@ type Link struct {
 	SlaveID  int    `json:"slaveId"`
 	Relation string `json:"relation"`
 
-	Index int `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-"`
 }
 
 type BinaryData struct {

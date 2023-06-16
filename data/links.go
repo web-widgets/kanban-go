@@ -25,7 +25,7 @@ type LinksDAO struct {
 
 func (m *LinksDAO) GetAll() ([]Link, error) {
 	links := make([]Link, 0)
-	err := m.db.Order("`index` asc").Find(&links).Error
+	err := m.db.Find(&links).Error
 	return links, err
 }
 
@@ -46,29 +46,12 @@ func (m *LinksDAO) Add(info LinkUpdate) (int, error) {
 		return int(info.Meta.RestoreID), err
 	}
 
-	// get index after last item o`n the stage
-	toIndex, err := m.getMaxIndex()
-	if err != nil {
-		return 0, err
-	}
-
 	c := Link{
 		MasterID: int(info.Link.MasterID),
 		SlaveID:  int(info.Link.SlaveID),
 		Relation: info.Link.Relation,
-		Index:    toIndex,
 	}
 
-	err = m.db.Save(&c).Error
+	err := m.db.Save(&c).Error
 	return c.ID, err
-}
-
-func (m *LinksDAO) getMaxIndex() (int, error) {
-	l := Link{}
-
-	err := m.db.Order("`index` desc").Take(&l).Error
-	if err == gorm.ErrRecordNotFound {
-		err = nil
-	}
-	return l.Index + 1, err
 }
